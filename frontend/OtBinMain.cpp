@@ -1389,7 +1389,6 @@ bool is_in_dual_area(u64 startIdx, u64 endIdx, u64 numIdx, u64 checkIdx) {
 // default nTrials=1
 void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std::vector<std::string> hostIpArr, std::string inputFilename, std::string outputFilename)
 {
-    std::cout << outputFilename << "gogogogogogogogo" << std::endl;
 	u64 opt = 0;
 	std::fstream runtime;
 	u64 leaderIdx = nParties - 1; //leader party
@@ -1454,7 +1453,6 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 	// myIdx > 0 server
 	// add by 20220124
 	// 创建p2p网络
-    std::cout << "myIdx:::::::::::::::::::" << myIdx << std::endl;
 	for(u64 i = 0, j = 0; i < myIdx && j < hostIpArr.size() && i < nParties; ++j, ++i) {
 		std::cout<< "tparty() if (i < myIdx)" << std::endl;
 		u32 port = 1200 + i * 100 + myIdx;//get the same port; i=1 & pIdx=2 =>port=102

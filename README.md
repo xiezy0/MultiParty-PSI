@@ -22,57 +22,53 @@ NOTE: If you meet problem with `all_win.ps1` or `all_linux.get` which builds boo
 ### Building the Project
 After cloning project from git,
 ##### Windows:
-1. build cryptoTools,libOTe, and libOPRF projects in order.
+1. build cryptoTools, libOTe, and libOPRF projects in order.
 2. add argument for bOPRFmain project (for example: -u)
 3. run bOPRFmain project
 
 ##### Linux:
-1. make (requirements: `CMake`, `Make`, `g++` or similar)
-2. for test:
-   ./bin/frontend.exe -u
+1. `cmake .` (requirements: `CMake`, `Make`, `g++` or similar)
+1. `make -j`
 
 
 ## Running the code
 The database is generated randomly. The outputs include the average online/offline/total runtime that displayed on the screen and output.txt.
 #### Flags:
-    -u		unit test which computes PSI of 5 paries, 2 dishonestly colluding, each with set size 2^12 in semihonest setting
-	-n		number of parties
-	-p		party ID
-	-m		set size
-	-t		number of corrupted parties (in semihonest setting)
-	-a		run in augmented semihonest model. Table-based OPPRF is by default.
-				0: Table-based; 1: POLY-seperated; 2-POLY-combined; 3-BloomFilter
-	-r		optimized 3PSI when r = 1			
+```shell
+-n		number of parties
+-t		number of corrupted parties (in semihonest setting)
+-m		set size
+-p		party ID
+-i		input file (every row means a item which will be PSI)
+-o		output file (output the Intersection value in "/output/{outputfile}")
+-ip     other party's IP, correspond to "-p" (ie. in "-p 0" -ip is {-p 1 ip},{-p 2 ip})
+```
 #### Examples:
-##### 1. Unit test:
-	./bin/frontend.exe -u
+nPSI: Compute PSI of 5 parties, no dishonestly colluding, each with set size 2^10 in semihonest setting
 
-##### 2. nPSI:
-Compute PSI of 5 parties, 2 dishonestly colluding, each with set size 2^12 in semihonest setting
-
-	./bin/frontend.exe -n 5 -t 2 -m 12 -p 0 
-	& ./bin/frontend.exe -n 5 -t 2 -m 12 -p 1
-	& ./bin/frontend.exe -n 5 -t 2 -m 12 -p 2
-	& ./bin/frontend.exe -n 5 -t 2 -m 12 -p 3
-	& ./bin/frontend.exe -n 5 -t 2 -m 12 -p 4
-
-Compute PSI of 5 parties, each with set size 2^12 in augmented semihonest setting with Bloom filter based OPPRF. Note that, the augmented SH protocol protects from a collusion of n-1 parties
-
-	./bin/frontend.exe -n 5 -a 3 -m 12 -p 0 
-	& ./bin/frontend.exe -n 5 -a 3  -m 12 -p 1
-    & ./bin/frontend.exe -n 5 -a 3  -m 12 -p 2
-    & ./bin/frontend.exe -n 5 -a 3  -m 12 -p 3
-    & ./bin/frontend.exe -n 5 -a 3  -m 12 -p 4
+```shell
+# build MultiParty PSI in 3 different machine(docker) or directly use ./bin/frontend.exe
+# Player 0's ip:192.168.1.10,
+./bin/frontend.exe -n 3 -t 0 -m 10 -p 0 -i data0.bin -o result0.txt -ip 192.168.1.11,192.168.1.12 > log0.log 
+# Player 1's ip:192.168.1.11
+./bin/frontend.exe -n 3 -t 0 -m 10 -p 1 -i data1.bin -o result1.txt -ip 192.168.1.10,192.168.1.12 > log1.log 
+# Player 2's ip:192.168.1.12
+./bin/frontend.exe -n 3 -t 0 -m 10 -p 2 -i data2.bin -o result2.txt -ip 192.168.1.10,192.168.1.11 > log2.log
+```
 
 ## Summary
 
-      1. git clone https://github.com/osu-crypto/MultipartyPSI.git  
-      2. cd thirdparty/
-      3. bash all_linux.get 
-      4. cd ..
-      5. cmake .
-      6.  make -j
-      7. ./bin/frontend.exe -n 5 -t 2 -m 12 -p 0 & ./bin/frontend.exe -n 5 -t 2 -m 12 -p 1  & ./bin/frontend.exe -n 5 -t 2 -m 12 -p 2 & ./bin/frontend.exe -n 5 -t 2 -m 12 -p 3 & ./bin/frontend.exe -n 5 -t 2 -m 12 -p 4
+single machine?:
+
+```shell
+  1. git clone .......  
+  2. cd thirdparty/
+  3. bash all_linux.get 
+  4. cd ..
+  5. cmake .
+  6.  make -j
+  7. ./bin/frontend.exe -n 3 -t 0 -m 10 -p 0 -i data0.txt -o result0.txt -ip {yourIP},{yourIP} > log0.log &./bin/frontend.exe -n 3 -t 0 -m 10 -p 1 -i data1.txt -o result1.txt -ip {yourIP},{yourIP} > log1.log &./bin/frontend.exe -n 3 -t 0 -m 10 -p 2 -i data2.txt -o result2.txt -ip {yourIP},{yourIP} > log2.log
+```
 
 
 ## Help
