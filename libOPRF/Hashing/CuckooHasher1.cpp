@@ -203,6 +203,7 @@ namespace osuCrypto
         MatrixView<u64> hashs,
         Workspace& w)
     {
+        std::cout<< "Start Exec CuckooHasher1::insertBatch" << std::endl;
         u64 width = mHashesView.size()[1];
         u64 remaining = inputIdxs.size();
         u64 tryCount = 0;
@@ -238,12 +239,17 @@ namespace osuCrypto
             // same thing here, this fetch is slow. Do them in parallel.
             for (u64 i = 0; i < remaining; ++i)
             {
+                std::cout<<"----------start " << i << "----------" << std::endl;
                 u64 newVal = inputIdxs[i] | (w.curHashIdxs[i] << 56);
 #ifdef THREAD_SAFE_CUCKOO
                 w.oldVals[i] = mBins[w.curAddrs[i]].mVal.exchange(newVal, std::memory_order_relaxed);
 #else
                 w.oldVals[i] = mBins[w.curAddrs[i]].mVal;
                 mBins[w.curAddrs[i]].mVal = newVal;
+                
+                std::cout<< "w.oldVals[i]:" << w.oldVals[i] << std::endl;
+                std::cout<< "mBins[w.curAddrs[i]].mVal:" << mBins[w.curAddrs[i]].mVal << std::endl;
+                std::cout<<"----------end " << i << "----------" << std::endl;
 #endif
             }
 
@@ -253,25 +259,35 @@ namespace osuCrypto
             // For X and W, which failed to be placed, lets write over them
             // with the vaues that they evicted.
             u64 putIdx = 0, getIdx = 0;
-            while (putIdx < remaining && w.oldVals[putIdx] != u64(-1))
+            std::cout<< "257:remaining:"<< remaining << std::endl;
+            std::cout<< "257:w.oldVals[putIdx]:"<< w.oldVals[putIdx] << std::endl;
+            std::cout<< "257:bool:"<< (putIdx < remaining && w.oldVals[putIdx] != u64(-1)) << std::endl;
+            while (putIdx < remaining && w.oldVals[putIdx] != u64(-1)) //重点看看为什么没进这个片段
             {
                 inputIdxs[putIdx] = w.oldVals[putIdx] & (u64(-1) >> 8);
                 w.curHashIdxs[putIdx] = (1 + (w.oldVals[putIdx] >> 56)) % mParams.mNumHashes[0];
                 ++putIdx;
+                std::cout<< "262:CuckooHasher1::insertBatch putIdx < remaining && w.oldVals[putIdx] != u64(-1)" << std::endl;
             }
 
             getIdx = putIdx + 1;
-
+            std::cout<< "266:putIdx:"<< putIdx << std::endl;
             // Now we want an array that looks like 
             //  |ABCD___________| but currently have 
             //  |AB__Y_____Z____| so lets move them 
             // forward and replace Y, Z with the values
             // they evicted.
+            std::cout<< "271:getIdx:"<< getIdx << std::endl;
+            std::cout<< "272:remaining:"<< remaining << std::endl;
             while (getIdx < remaining)
             {
-                while (getIdx < remaining &&
-                    w.oldVals[getIdx] == u64(-1))
-                    ++getIdx;
+                std::cout<< "279:w.oldVals[getIdx]:"<< w.oldVals[getIdx] << std::endl;
+                std::cout<< "279:bool:"<< (getIdx < remaining && w.oldVals[getIdx] == u64(-1)) << std::endl;
+                while (getIdx < remaining && w.oldVals[getIdx] == u64(-1)) {
+                        ++getIdx;
+                        std::cout<< "279 CuckooHasher1::insertBatch getIdx < && w.oldVals[getIdx] == u64(-1)" << std::endl;
+                    }
+                    
 
                 if (getIdx >= remaining) break;
 
@@ -283,6 +299,8 @@ namespace osuCrypto
 
                 ++putIdx;
                 ++getIdx;
+                std::cout<< "CuckooHasher1::insertBatch getIdx < remaining" << std::endl;
+
             }
 
             remaining = putIdx;
@@ -297,6 +315,7 @@ namespace osuCrypto
 		std::lock_guard<std::mutex> lock(mInsertBin);
 			for (u64 i = 0; i < remaining; ++i)
 			{
+                std::cout<< "CuckooHasher1::insertBatch lock(mInsertBin)" << std::endl;
 				mStashIdxs.push_back(inputIdxs[i]);
 			}
 		
@@ -311,7 +330,7 @@ namespace osuCrypto
 				if (inputIdxs[i] == -1)
 					++i;
 			}*/
-		
+		std::cout<< "End Exec CuckooHasher1::insertBatch" << std::endl;
 
     }
 
@@ -324,7 +343,7 @@ namespace osuCrypto
 		u64 width = mStashHashesView.size()[1];
 
 		u64 remaining = inputIdxs.size();
-	//	std::cout << "inputStashIdxs.size(): " << inputIdxs.size() << std::endl;
+		std::cout << "inputStashIdxs.size(): " << inputIdxs.size() << std::endl; //125
 
 		u64 tryCount = 0;
 
@@ -344,7 +363,8 @@ namespace osuCrypto
 			w.curHashIdxs[i] = 0;
 		}
 
-
+        std::cout << "CuckooHasher insertStashBatch() line 348 remaining: " << remaining << std::endl;
+        int zzc = 1;
 		while (remaining && tryCount++ < 100)
 		{
 
@@ -374,20 +394,27 @@ namespace osuCrypto
 			// For X and W, which failed to be placed, lets write over them
 			// with the vaues that they evicted.
 			u64 putIdx = 0, getIdx = 0;
+            std::cout << "w.oldVals[putIdx]:" << w.oldVals[putIdx] << std::endl;
+            zzc = 1;
 			while (putIdx < remaining && w.oldVals[putIdx] != u64(-1))
 			{
 				inputIdxs[putIdx] = w.oldVals[putIdx] & (u64(-1) >> 8);
 				w.curHashIdxs[putIdx] = (1 + (w.oldVals[putIdx] >> 56)) % mParams.mNumHashes[1];
 				++putIdx;
+                if(zzc==1) {
+                    std::cout << "putIdx < remaining && w.oldVals[putIdx] != u64(-1)" << std::endl;
+                    zzc++;
+                }
 			}
 
 			getIdx = putIdx + 1;
-
+            std::cout << "CuckooHasher insertStashBatch() line 384 getIdx: " << getIdx << std::endl;
 			// Now we want an array that looks like 
 			//  |ABCD___________| but currently have 
 			//  |AB__Y_____Z____| so lets move them 
 			// forward and replace Y, Z with the values
 			// they evicted.
+            zzc=1;
 			while (getIdx < remaining)
 			{
 				while (getIdx < remaining &&
@@ -404,11 +431,22 @@ namespace osuCrypto
 
 				++putIdx;
 				++getIdx;
+                if(zzc==1) {
+                    std::cout << "getIdx < remaining" << std::endl;
+                    zzc++;
+                }
 			}
 
 			remaining = putIdx;
+            if(zzc==1) {
+                std::cout << "CuckooHasher insertStashBatch() putIdx: " << putIdx << std::endl;
+                zzc++;
+            }
+            
 		}
 
+        // 思考：如何确保remaining <= 0
+        // 需确保putIdx=0，那么就不能进入上面两个while循环
 		if (remaining > 0)
 		{
 			std::cout << "remaining: " << remaining << std::endl;

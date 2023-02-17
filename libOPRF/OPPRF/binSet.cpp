@@ -52,7 +52,7 @@ namespace osuCrypto
 #if 1
         // this is the online phase.
         gTimer.setTimePoint("online.recv.start");
-
+		std::cout<<"hashing2Bins begin"<<std::endl;
         // check that the number of inputs is as expected.
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);	
@@ -100,6 +100,8 @@ namespace osuCrypto
 
                 auto startIdx = tIdx     * mN / thrds.size();
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
+				std::cout<< "startIdx:" << startIdx << std::endl;
+				std::cout<< "endIdx:" << endIdx << std::endl;
 #pragma region Hashing
 
                 std::vector<AES> ncoInputHasher(mNcoInputBlkSize);
@@ -109,7 +111,9 @@ namespace osuCrypto
 
                 for (u64 i = startIdx; i < endIdx; i += 128)
                 {
+					std::cout<< "endIdx - i:" << endIdx - i << std::endl;
                     auto currentStepSize = std::min(u64(128), endIdx - i);
+					std::cout<< "currentStepSize:" << currentStepSize << std::endl;
 
                     for (u64 hashIdx = 0; hashIdx < ncoInputHasher.size(); ++hashIdx)
                     {
@@ -130,8 +134,10 @@ namespace osuCrypto
 						for (u64 k = 0; k <mCuckooBins.mParams.mNumHashes[0]; ++k)
 						{
 							hashes[j][k] = *(u64*)&mNcoInputBuff[k][i + j];
-						}		                 					
+						}
 					}
+
+					std::cout<< "tempIdxBuff.size():" << tempIdxBuff.size() << std::endl;
 
 					mSimpleBins.insertBatch(tempIdxBuff, hashes);
 
@@ -155,6 +161,7 @@ namespace osuCrypto
 							stashHashes[j][k] = *(u64*)&mNcoInputBuff[k][mCuckooBins.mStashIdxs[j]];
 						}
 					}
+					std::cout<<"mCuckooBins.mStashIdxs.size():"<<mCuckooBins.mStashIdxs.size()<<std::endl;
 					mCuckooBins.insertStashBatch(mCuckooBins.mStashIdxs, stashHashes, stashW);
 				}
 				if (--insertStashRemaining)

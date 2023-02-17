@@ -11,6 +11,7 @@ using namespace osuCrypto;
 #include "bitPosition.h"
 
 #include <numeric>
+#include <string>
 #include "Common/Log.h"
 //int miraclTestMain();
 
@@ -46,6 +47,7 @@ int main(int argc, char** argv)
 
 	u64 roundOPPRF;
 
+	std::string filename;
 
 	switch (argc) {
 	case 2: //unit test
@@ -86,52 +88,79 @@ int main(int argc, char** argv)
 			return 0;
 		}
 		break;
-	case 9: //nPSI or optimized 3PSI
-		cout << "9\n";
+	// case 9: //nPSI or optimized 3PSI
+	case 11: //nPSI or optimized 3PSI
+		cout << "nPSI or optimized 3PSI: argc=11\n";
+		// comment 20211231
+		// -n：number of parties
 		if (argv[1][0] == '-' && argv[1][1] == 'n')
-			nParties = atoi(argv[2]);
+			// comment 20211231
+			// int atoi(const char *str) 把参数 str 所指向的字符串转换为一个整数（类型为 int 型）
+			// nParties：参与方数量
+			nParties = atoi(argv[2]); 
 		else
 		{
 			usage(argv[0]);
 			return 0;
 		}
+		// comment 20220104
+		// -r：optimized 3PSI when r = 1
 		if (argv[3][0] == '-' && argv[3][1] == 'r' && nParties == 3)
 		{
 			roundOPPRF = atoi(argv[4]);
-			tParties = 2;
+			tParties = 2; // tParties：不诚实方数量
 		}
+		// comment 20220104
+		// -t：number of corrupted parties (in semihonest setting)
 		else if (argv[3][0] == '-' && argv[3][1] == 't')
 			tParties = atoi(argv[4]);
-
+		// comment 20220104
+		// -a：run in augmented semihonest model. Table-based OPPRF is by default.
+		//	0: Table-based; 1: POLY-seperated; 2-POLY-combined; 3-BloomFilter
 		else if (argv[3][0] == '-' && argv[3][1] == 'a')
 			opt_basedOPPRF = atoi(argv[4]);
-
 		else
 		{
 			usage(argv[0]);
 			return 0;
 		}
 
+		// comment 20220104
+		// -m：set size
 		if (argv[5][0] == '-' && argv[5][1] == 'm')
-			setSize = 1 << atoi(argv[6]);
+			setSize = 1 << atoi(argv[6]); // 1左移x位，即为2^x
 		else
 		{
 			usage(argv[0]);
 			return 0;
 		}
 
+		if (argv[9][0] == '-' && argv[9][1] == 'f')
+		{
+			filename = argv[10];
+			cout << "argv[10] filename:"<< filename <<"\n";
+		}
+		else
+		{
+			usage(argv[0]);
+			return 0;
+		}
+
+		// comment 20220104
+		// -p：party ID
 		if (argv[7][0] == '-' && argv[7][1] == 'p') {
 			u64 pIdx = atoi(argv[8]);
 			if (roundOPPRF == 1 && nParties == 3)
 			{
 				//cout << nParties  << " " << roundOPPRF << " " << setSize << " " << pIdx << "\n";
-				party3(pIdx, setSize, trials);
-
+				cout << "123" <<endl;
+                party3(pIdx, setSize, trials);
 			}
-			else if (argv[3][1] == 't')
+			else if (argv[3][1] == 't') //重点关注这个分支
 			{
-				//cout << nParties << " " << tParties << " " << setSize << " " << pIdx << "\n";
-				tparty(pIdx, nParties, tParties, setSize, trials);
+				cout << "log: =======================exec tparty=======================\n";
+				cout << "pIdx:" << pIdx << " nParties:" << nParties << " tParties:" << tParties << " setSize:" << setSize << " trials:" << trials << " filename:" << filename << "\n";
+				tparty(pIdx, nParties, tParties, setSize, trials, filename);
 			}
 			else if (argv[3][1] == 'a')
 			{
