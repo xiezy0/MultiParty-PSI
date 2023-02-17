@@ -719,9 +719,11 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials)
 		block blk_rand = prngSame.get<block>();
 		expected_intersection = (*(u64*)&blk_rand) % setSize;
 
+        std::cout << expected_intersection << std::endl;
 		for (u64 i = 0; i < expected_intersection; ++i)
 		{
 			set[i] = prngSame.get<block>();
+            std::cout << set[i] << std::endl;
 		}
 
 		for (u64 i = expected_intersection; i < setSize; ++i)
@@ -1434,9 +1436,6 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials)
 				//chls[i][j] = &ep[i].addChannel("chl" + std::to_string(j), "chl" + std::to_string(j));
 				chls[i][j] = &ep[i].addChannel(name, name);
 				//chls[i][j].mEndpoint;
-
-
-
 			}
 		}
 	}
@@ -1468,16 +1467,16 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials)
 		for (u64 i = 0; i < expected_intersection; ++i)
 		{
 			set[i] = prngSame.get<block>();
-		}
 
+		}
+        std::cout << "原文：" << "\n";
+        for(auto &&intersection : set) {
+            std::cout << intersection << "\n";
+        }
 		for (u64 i = expected_intersection; i < setSize; ++i)
 		{
 			set[i] = prngDiff.get<block>();
 		}
-
-
-
-
 
 #ifdef PRINT	
 		std::cout << IoStream::lock;
@@ -2119,6 +2118,15 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials)
 				std::cout << "\nLeader Idx: " << myIdx << "\n";
 			}
 
+            std::cout << "交集密文：" << "\n";
+            for(auto &&intersection : mIntersection) {
+                std::cout << intersection << "\n";
+            }
+//            std::cout << "交集原文：" << "\n";
+//            for(auto &&intersectionPos : mIntersectionPos) {
+//                std::cout << itemStrVector[intersectionPos] << "\n";
+//            }
+
 			if (myIdx == leaderIdx) {
 				Log::out << "#Output Intersection: " << mIntersection.size() << Log::endl;
 				Log::out << "#Expected Intersection: " << expected_intersection << Log::endl;
@@ -2706,7 +2714,10 @@ void aug_party(u64 myIdx, u64 nParties, u64 setSize,  u64 opt, u64 nTrials)
 				}
 			}
 
-
+            std::cout << "交集密文：" << "\n";
+			for(auto &&intersection : mIntersection) {
+				std::cout << intersection << "\n";
+			}
 
 			std::cout << "setSize: " << setSize << "\n"
 				<< "offlineTime:  " << offlineTime << " ms\n"
@@ -2855,8 +2866,6 @@ void OPPRFnt_EmptrySet_Test_Main()
 	}
 	for (u64 pIdx = 0; pIdx < pThrds.size(); ++pIdx)
 		pThrds[pIdx].join();
-
-
 }
 
 void OPPRFn_EmptrySet_Test_Main()
@@ -3079,9 +3088,6 @@ void Bit_Position_Random_Test()
 	Log::out << Log::endl;
 
 }
-
-
-
 
 void tparty1(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, std::vector<block>& mSet, u64 nTrials)
 {

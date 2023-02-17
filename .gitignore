@@ -1,0 +1,6 @@
+/thirdparty
+/cmake-build-debug
+CMakeCache.txt
+log0.log
+log1.log
+log2.log
