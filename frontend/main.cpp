@@ -13,6 +13,9 @@ using namespace osuCrypto;
 #include <numeric>
 #include <string>
 #include "Common/Log.h"
+
+#include <boost/algorithm/string/classification.hpp> // Include boost::for is_any_of
+#include <boost/algorithm/string/split.hpp> // Include for boost::split
 //int miraclTestMain();
 
 
@@ -48,6 +51,9 @@ int main(int argc, char** argv)
 	u64 roundOPPRF;
 
 	std::string filename;
+
+	std::string hostIpStr;
+	std::vector<std::string> hostIpArr;
 
 	switch (argc) {
 	case 2: //unit test
@@ -89,12 +95,12 @@ int main(int argc, char** argv)
 		}
 		break;
 	// case 9: //nPSI or optimized 3PSI
-	case 11: //nPSI or optimized 3PSI
+	case 13: //nPSI or optimized 3PSI
 		cout << "nPSI or optimized 3PSI: argc=11\n";
-		// comment 20211231
+		// comment by 20211231
 		// -n：number of parties
 		if (argv[1][0] == '-' && argv[1][1] == 'n')
-			// comment 20211231
+			// comment by 20211231
 			// int atoi(const char *str) 把参数 str 所指向的字符串转换为一个整数（类型为 int 型）
 			// nParties：参与方数量
 			nParties = atoi(argv[2]); 
@@ -103,18 +109,18 @@ int main(int argc, char** argv)
 			usage(argv[0]);
 			return 0;
 		}
-		// comment 20220104
+		// comment by 20220104
 		// -r：optimized 3PSI when r = 1
 		if (argv[3][0] == '-' && argv[3][1] == 'r' && nParties == 3)
 		{
 			roundOPPRF = atoi(argv[4]);
 			tParties = 2; // tParties：不诚实方数量
 		}
-		// comment 20220104
+		// comment by 20220104
 		// -t：number of corrupted parties (in semihonest setting)
 		else if (argv[3][0] == '-' && argv[3][1] == 't')
 			tParties = atoi(argv[4]);
-		// comment 20220104
+		// comment by 20220104
 		// -a：run in augmented semihonest model. Table-based OPPRF is by default.
 		//	0: Table-based; 1: POLY-seperated; 2-POLY-combined; 3-BloomFilter
 		else if (argv[3][0] == '-' && argv[3][1] == 'a')
@@ -125,7 +131,7 @@ int main(int argc, char** argv)
 			return 0;
 		}
 
-		// comment 20220104
+		// comment by 20220104
 		// -m：set size
 		if (argv[5][0] == '-' && argv[5][1] == 'm')
 			setSize = 1 << atoi(argv[6]); // 1左移x位，即为2^x
@@ -146,21 +152,35 @@ int main(int argc, char** argv)
 			return 0;
 		}
 
-		// comment 20220104
+		if (argv[11][0] == '-' && argv[11][1] == 'i' && argv[11][2] == 'p')
+		{
+			hostIpStr = argv[12];
+
+			boost::split(hostIpArr, hostIpStr, boost::is_any_of(","), boost::token_compress_on);
+			for(auto &&hostIp : hostIpArr) {
+				std::cout << hostIp << "\n";
+			}
+		}
+		else
+		{
+			usage(argv[0]);
+			return 0;
+		}
+
+		// comment by 20220104
 		// -p：party ID
 		if (argv[7][0] == '-' && argv[7][1] == 'p') {
 			u64 pIdx = atoi(argv[8]);
 			if (roundOPPRF == 1 && nParties == 3)
 			{
 				//cout << nParties  << " " << roundOPPRF << " " << setSize << " " << pIdx << "\n";
-				cout << "123" <<endl;
-                party3(pIdx, setSize, trials);
+				party3(pIdx, setSize, trials);
 			}
-			else if (argv[3][1] == 't') //重点关注这个分支
+			else if (argv[3][1] == 't') // log:重点关注这个分支
 			{
-				cout << "log: =======================exec tparty=======================\n";
-				cout << "pIdx:" << pIdx << " nParties:" << nParties << " tParties:" << tParties << " setSize:" << setSize << " trials:" << trials << " filename:" << filename << "\n";
-				tparty(pIdx, nParties, tParties, setSize, trials, filename);
+				cout << " log log: =======================exec tparty=======================\n";
+				cout << "pIdx:" << pIdx << " nParties:" << nParties << " tParties:" << tParties << " setSize:" << setSize << " trials:" << trials << " filename:" << filename << " hostIpArr.size():" << hostIpArr.size() << "\n";
+				tparty(pIdx, nParties, tParties, setSize, trials, hostIpArr, filename);
 			}
 			else if (argv[3][1] == 'a')
 			{
