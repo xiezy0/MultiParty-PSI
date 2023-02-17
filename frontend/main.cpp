@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 
 	u64 roundOPPRF;
 
-	std::string filename;
+	std::string inputFilename, outputFilename;
 
 	std::string hostIpStr;
 	std::vector<std::string> hostIpArr;
@@ -95,8 +95,8 @@ int main(int argc, char** argv)
 		}
 		break;
 	// case 9: //nPSI or optimized 3PSI
-	case 13: //nPSI or optimized 3PSI
-		cout << "nPSI or optimized 3PSI: argc=11\n";
+	case 15: //nPSI or optimized 3PSI
+		cout << "nPSI or optimized 3PSI: argc=15\n";
 		// comment by 20211231
 		// -n：number of parties
 		if (argv[1][0] == '-' && argv[1][1] == 'n')
@@ -141,10 +141,10 @@ int main(int argc, char** argv)
 			return 0;
 		}
 
-		if (argv[9][0] == '-' && argv[9][1] == 'f')
+		if (argv[9][0] == '-' && argv[9][1] == 'i')
 		{
-			filename = argv[10];
-			cout << "argv[10] filename:"<< filename <<"\n";
+			inputFilename = argv[10];
+			cout << "argv[10] filename:"<< inputFilename <<"\n";
 		}
 		else
 		{
@@ -152,9 +152,17 @@ int main(int argc, char** argv)
 			return 0;
 		}
 
-		if (argv[11][0] == '-' && argv[11][1] == 'i' && argv[11][2] == 'p')
+        if (argv[11][0] == '-' && argv[11][1] == 'o'){
+            outputFilename = argv[12];
+            cout << "argv[12] filename:"<< outputFilename <<"\n";
+        }else{
+            usage(argv[0]);
+            return 0;
+        }
+
+		if (argv[13][0] == '-' && argv[13][1] == 'i' && argv[13][2] == 'p')
 		{
-			hostIpStr = argv[12];
+			hostIpStr = argv[14];
 
 			boost::split(hostIpArr, hostIpStr, boost::is_any_of(","), boost::token_compress_on);
 			for(auto &&hostIp : hostIpArr) {
@@ -179,8 +187,8 @@ int main(int argc, char** argv)
 			else if (argv[3][1] == 't') // log:重点关注这个分支
 			{
 				cout << " log log: =======================exec tparty=======================\n";
-				cout << "pIdx:" << pIdx << " nParties:" << nParties << " tParties:" << tParties << " setSize:" << setSize << " trials:" << trials << " filename:" << filename << " hostIpArr.size():" << hostIpArr.size() << "\n";
-				tparty(pIdx, nParties, tParties, setSize, trials, hostIpArr, filename);
+				cout << "pIdx:" << pIdx << " nParties:" << nParties << " tParties:" << tParties << " setSize:" << setSize << " trials:" << trials << " filename:" << inputFilename << " hostIpArr.size():" << hostIpArr.size() << "\n";
+				tparty(pIdx, nParties, tParties, setSize, trials, hostIpArr, inputFilename, outputFilename);
 			}
 			else if (argv[3][1] == 'a')
 			{

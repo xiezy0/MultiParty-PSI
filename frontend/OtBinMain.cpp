@@ -30,7 +30,6 @@ using namespace osuCrypto;
 #include <netinet/in.h> ///< sockaddr_in
 #include <arpa/inet.h>  ///< getsockname
 #include <unistd.h>     ///< close
-
 #include "OtBinMain.h"
 
 //#define OOS
@@ -1388,8 +1387,9 @@ bool is_in_dual_area(u64 startIdx, u64 endIdx, u64 numIdx, u64 checkIdx) {
 
 //leader is n-1
 // default nTrials=1
-void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std::vector<std::string> hostIpArr, std::string filename)
+void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std::vector<std::string> hostIpArr, std::string inputFilename, std::string outputFilename)
 {
+    std::cout << outputFilename << "gogogogogogogogo" << std::endl;
 	u64 opt = 0;
 	std::fstream runtime;
 	u64 leaderIdx = nParties - 1; //leader party
@@ -1398,12 +1398,12 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
     u64 nelements=0, *elebytelens;
 	u32 elebytelen=16, symsecbits=128, intersect_size = 0, i, j, ntasks=1,
 			pnelements, *res_bytelens, nclients = 2;
-	std::cout << "tparty input filename:" << filename << "\n";
+	std::cout << "tparty input filename:" << inputFilename << "\n";
 	// std::string filename(filename.c_str());
 
 	//read in files and get elements and byte-length from there
 	std::cout << "++++++++++start read_elements++++++++++" << "\n";
-	read_elements(&elements, &elebytelens, &nelements, filename);
+	read_elements(&elements, &elebytelens, &nelements, inputFilename);
 
 	std::vector<std::string> itemStrVector(nelements); //add by 20220121: 明文元素集合
 	// for(i = 0; i < nelements; i++) {
@@ -2202,6 +2202,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 			for(auto &&intersectionPos : mIntersectionPos) {
 				std::cout << itemStrVector[intersectionPos] << "\n";
 			}
+            write_elements(itemStrVector, mIntersectionPos, outputFilename);
 
 			std::cout << "==========End leader exec online phasing - compute intersection==========" << "\n";
 
@@ -2983,7 +2984,8 @@ void OPPRFnt_EmptrySet_Test_Main()
 	u64 nParties = 5;
 	u64 tParties = 2;
 
-	std::string filename("./inpput.bin");
+	std::string inputFilename("./inpput.bin");
+    std::string outputFilename("./output.bin");
 	std::vector<std::string> hostIpArr(1);
 	hostIpArr.push_back("localhost");
 
@@ -2993,7 +2995,7 @@ void OPPRFnt_EmptrySet_Test_Main()
 		{
 			pThrds[pIdx] = std::thread([&, pIdx]() {
 				//	Channel_party_test(pIdx);
-				tparty(pIdx, nParties, tParties, setSize, 1, hostIpArr, filename);
+				tparty(pIdx, nParties, tParties, setSize, 1, hostIpArr, inputFilename, outputFilename);
 			});
 		}
 	}
@@ -4170,6 +4172,25 @@ void read_elements(u8*** elements, u64** elebytelens, u64* nelements, std::strin
 #endif
 	}
 	std::cout << "++++++++++end read file++++++++++" << std::endl;
+}
+
+void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector<u64> mIntersection, std::string filename){
+    if (!file_exists("output/" + filename)){
+        std::ofstream out_file("output/" + filename);
+        // std::ofstream out_file(std::experimental::filesystem::path("output") / filename);
+
+        // 将向量中的每个元素输出到文件中，每个元素占一列
+        for (const auto& elem : mIntersection) {
+            out_file << itemVector[elem] << std::endl;
+        }
+
+        // 关闭文件
+        out_file.close();
+    }
+}
+
+bool file_exists(const std::string& file_name) {
+    return access(file_name.c_str(), F_OK) != -1;
 }
 
 void GetPrimaryIp(char (&buffer)[80])
