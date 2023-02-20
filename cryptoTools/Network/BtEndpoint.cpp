@@ -26,6 +26,7 @@ namespace osuCrypto {
         mIOService = &(ioService);
         mStopped = (false);
         mName = (name);
+        //std::cout << "output some main info:" << mIP << ":::" << mPort << ":::" <<  mHost << ":::" << mIOService << ":::" << mStopped << ":::" << mName << std::endl;
 
         if (host) {
             mAcceptor = (ioService.getAcceptor(*this));

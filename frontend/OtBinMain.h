@@ -25,4 +25,5 @@ void read_elements(u8*** elements, u64** elebytelens, u64* nelements, std::strin
 void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector<u64> elements, std::string filename);
 bool file_exists(const std::string& file_name);
 void GetPrimaryIp(char (&buffer)[80]);
+std::string get_local_ip_address();
 //void OPPRFn_EmptrySet_Test();

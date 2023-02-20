@@ -30,6 +30,7 @@ using namespace osuCrypto;
 #include <netinet/in.h> ///< sockaddr_in
 #include <arpa/inet.h>  ///< getsockname
 #include <unistd.h>     ///< close
+#include <ifaddrs.h>
 #include "OtBinMain.h"
 
 //#define OOS
@@ -1462,10 +1463,9 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 		ep[i].start(ios, remoteIp, port, false, name); //channel bwt i and pIdx, where i is sender
 	}
 
-	char buffer[80];
-	GetPrimaryIp(buffer);
-	std::string localIp = buffer;
-    std::cout << "localIP:::::::::" << localIp << std::endl;
+//	char buffer[80];
+//	GetPrimaryIp(buffer);
+	std::string localIp = get_local_ip_address();
 
 	for (u64 i = 0; i < nParties; ++i)
 	{
@@ -1494,7 +1494,8 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 			chls[i].resize(numThreads);
 			for (u64 j = 0; j < numThreads; ++j)
 			{
-				//chls[i][j] = &ep[i].addChannel("chl" + std::to_string(j), "chl" + std::to_string(j));
+                std::cout << "channel" << i << " to " << j << std::endl;
+ 				//chls[i][j] = &ep[i].addChannel("chl" + std::to_string(j), "chl" + std::to_string(j));
 				chls[i][j] = &ep[i].addChannel(name, name); // name="psi"
 				//chls[i][j].mEndpoint;
 			}
@@ -3281,9 +3282,6 @@ void tparty1(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, std::vector<blo
 				//chls[i][j] = &ep[i].addChannel("chl" + std::to_string(j), "chl" + std::to_string(j));
 				chls[i][j] = &ep[i].addChannel(name, name);
 				//chls[i][j].mEndpoint;
-
-
-
 			}
 		}
 	}
@@ -4191,8 +4189,10 @@ bool file_exists(const std::string& file_name) {
     return access(file_name.c_str(), F_OK) != -1;
 }
 
+// get localhost ip
 void GetPrimaryIp(char (&buffer)[80])
 {
+    // vpn dns
     const char* google_dns_server = "8.8.8.8";
     int dns_port = 53;
 
@@ -4205,11 +4205,13 @@ void GetPrimaryIp(char (&buffer)[80])
         std::cout << "Socket error" << std::endl;
     }
 
+    // define server ip-addr and port = 8.8.8.8:53
     memset(&serv, 0, sizeof(serv));
     serv.sin_family = AF_INET;
     serv.sin_addr.s_addr = inet_addr(google_dns_server);
     serv.sin_port = htons(dns_port);
 
+    // connect to server
     int err = connect(sock, (const struct sockaddr*)&serv, sizeof(serv));
     if (err < 0)
     {
@@ -4235,3 +4237,25 @@ void GetPrimaryIp(char (&buffer)[80])
 
     close(sock);
 }
+
+std::string get_local_ip_address() {
+    std::string ip_address;
+    struct ifaddrs *ifaddr, *ifa;
+    if (getifaddrs(&ifaddr) == -1) {
+        return "";
+    }
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL) continue;
+        if (ifa->ifa_addr->sa_family == AF_INET) {
+            struct sockaddr_in *sa = (struct sockaddr_in *)ifa->ifa_addr;
+            if (strcmp(ifa->ifa_name, "lo") != 0) {
+                char ip[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &sa->sin_addr, ip, INET_ADDRSTRLEN);
+                ip_address = ip;
+                break;
+            }
+        }
+    }
+    freeifaddrs(ifaddr);
+    return ip_address;
+};
