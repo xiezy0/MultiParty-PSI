@@ -95,7 +95,7 @@ namespace osuCrypto
         void insertBatch(ArrayView<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
 
 		
-			void insertStashBatch(ArrayView<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
+		void insertStashBatch(ArrayView<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
 
 
         u64 find(ArrayView<u64> hashes);

@@ -1553,10 +1553,10 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 				if ( m % sizeof( *b ) == sizeof( *b ) - 1 ) k++;
 			}
 
-			block seed1 = _mm_set_epi32(b[0],b[1],b[2],b[3]);
+			block seed1 = _mm_set_epi32(std::stoi(itemStr), std::stoi(itemStr),std::stoi(itemStr),std::stoi(itemStr));
 			PRNG myPrng(seed1);
 			set[i] = myPrng.get<block>();
-			std::cout << set[i] << "\n";
+			std::cout << "set i=" << set[i] << "\n";
 		}
 		std::cout << "==========end build set==========" << "\n";
 
@@ -4258,4 +4258,4 @@ std::string get_local_ip_address() {
     }
     freeifaddrs(ifaddr);
     return ip_address;
-};
+}

@@ -11,7 +11,12 @@
 #include "Network/BtSocket.h"
 #include "Network/BtAcceptor.h"
 
+#include <mutex>
+#include <thread>
+
 #include <sstream>
+
+std::mutex cout_mutex;
 
 namespace osuCrypto
 {
@@ -113,6 +118,22 @@ namespace osuCrypto
                 //// This is *** NOT *** within the stand. Dont touch the recv queue! ////
                 //////////////////////////////////////////////////////////////////////////
 
+                //cout_mutex.lock();
+//                std::thread output([](u64 bytesTransfered, u64 message0, boost::system::error_code message1) {
+//
+//                    std::cout << "bytesTransfered " << bytesTransfered << " message0: " << message0 << " message1: " << message1 << std::endl;
+//                    std::cout << (message0 || message1) << std::endl;
+//
+//                }, bytesTransfered, boost::asio::buffer_size(op.mBuffs[0]), ec);
+//                output.join();
+                std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << bytesTransfered <<  (boost::asio::buffer_size(op.mBuffs[0])) << std::endl;
+//                std::cout << (boost::asio::buffer_size(op.mBuffs[0]) || ec) << std::endl;
+//                std::cout << boost::asio::buffer_size(op.mBuffs[0]) << ec << std::endl;
+                //cout_mutex.unlock();
+                //throw std::runtime_error("rt error at " LOCATION "  ec=" + ec.message() + ". else bytesTransfered != " + std::to_string(boost::asio::buffer_size(op.mBuffs[0])));
+//                std::cout << bytesTransfered << std::endl;
+//                std::cout << (boost::asio::buffer_size(op.mBuffs[0]) || ec) << std::endl;
+//                std::cout << boost::asio::buffer_size(op.mBuffs[0]) << ec << std::endl;
 
                 if (bytesTransfered != boost::asio::buffer_size(op.mBuffs[0]) || ec)
                 {
