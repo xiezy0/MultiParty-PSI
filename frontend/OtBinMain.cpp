@@ -1519,7 +1519,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 	{
 #pragma region input
 		// std::vector<block> set(setSize);
-		std::vector<block> set(nelements);
+		std::vector<block> set(setSize);
 
 		std::vector<std::vector<block>>
 			sendPayLoads(ttParties + 1), //include the last PayLoads to leader
@@ -1558,6 +1558,10 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 			set[i] = myPrng.get<block>();
 			std::cout << "set i=" << set[i] << "\n";
 		}
+        for(i = nelements; i < setSize; i++){
+            PRNG diffPrng(_mm_set_epi32(434653, 23, myIdx * setSize + i, myIdx * setSize + i));
+            set[i] = diffPrng.get<block>();
+        }
 		std::cout << "==========end build set==========" << "\n";
 
 		// // comment by 20220110
@@ -1645,18 +1649,18 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 		if (myIdx != leaderIdx) {//generate share of zero for leader myIDx!=n-1		
 			for (u64 idxP = 0; idxP < ttParties; ++idxP)
 			{
-				sendPayLoads[idxP].resize(nelements);
+				sendPayLoads[idxP].resize(setSize);
 				// sendPayLoads1[idxP].resize(nelements);
-				for (u64 i = 0; i < nelements; ++i)
+				for (u64 i = 0; i < setSize; ++i)
 				{
 					sendPayLoads[idxP][i] = prng.get<block>();
 					// sendPayLoads1[idxP][i] = prng.get<std::string>();
 				}
 			}
 
-			sendPayLoads[ttParties].resize(nelements); //share to leader at second phase
+			sendPayLoads[ttParties].resize(setSize); //share to leader at second phase
 			// sendPayLoads1[ttParties].resize(nelements); //share to leader at second phase
-			for (u64 i = 0; i < nelements; ++i)
+			for (u64 i = 0; i < setSize; ++i)
 			// for (u64 i = 0; i < nelements; ++i)
 			{
 				sendPayLoads[ttParties][i] = ZeroBlock;
@@ -1670,7 +1674,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 			for (u64 idxP = 0; idxP < recvPayLoads.size(); ++idxP)
 			// for (u64 idxP = 0; idxP < recvPayLoads1.size(); ++idxP)
 			{
-				recvPayLoads[idxP].resize(nelements);
+				recvPayLoads[idxP].resize(setSize);
 				// recvPayLoads1[idxP].resize(nelements);
 			}
 
@@ -1685,14 +1689,14 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 			for (u64 idxP = 0; idxP < recvPayLoads.size(); ++idxP)
 			// for (u64 idxP = 0; idxP < recvPayLoads1.size(); ++idxP)
 			{
-				recvPayLoads[idxP].resize(nelements);
+				recvPayLoads[idxP].resize(setSize);
 				// recvPayLoads1[idxP].resize(nelements);
 			}
 
 		}
 
 		// bins.init(myIdx, nParties, setSize, psiSecParam, opt);
-		bins.init(myIdx, nParties, nelements, psiSecParam, opt);
+		bins.init(myIdx, nParties, setSize, psiSecParam, opt);
 		u64 otCountSend = bins.mSimpleBins.mBins.size();
 		u64 otCountRecv = bins.mCuckooBins.mBins.size();
 
@@ -1721,7 +1725,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 
 
 						//prevIdx << " --> " << myIdx
-						recv[prevIdx].init(opt, nParties, nelements, psiSecParam, bitSize, chls[prevIdx], otCountRecv, otRecv[prevIdx], otSend[prevIdx], ZeroBlock, false);
+						recv[prevIdx].init(opt, nParties, setSize, psiSecParam, bitSize, chls[prevIdx], otCountRecv, otRecv[prevIdx], otSend[prevIdx], ZeroBlock, false);
 
 					});
 
@@ -1747,7 +1751,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 							//std::cout << myIdx << "| d: " << "| thr[" << pIdx << "]:" << myIdx << " <->> " << nextIdx << ": " << static_cast<int16_t>(dummy[nextIdx]) << "\n";
 							//std::cout << IoStream::unlock;
 
-							send[nextIdx].init(opt, nParties, nelements, psiSecParam, bitSize, chls[nextIdx], otCountSend, otSend[nextIdx], otRecv[nextIdx], prng.get<block>(), true);
+							send[nextIdx].init(opt, nParties, setSize, psiSecParam, bitSize, chls[nextIdx], otCountSend, otSend[nextIdx], otRecv[nextIdx], prng.get<block>(), true);
 						}
 						else if (myIdx > nextIdx) //by index
 						{
@@ -1757,7 +1761,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 							std::cout << myIdx << "| d: " << "| thr[" << pIdx << "]:" << myIdx << " <<-> " << nextIdx << ": " << static_cast<int16_t>(revDummy[nextIdx]) << "\n";
 							std::cout << IoStream::unlock;*/
 
-							recv[nextIdx].init(opt, nParties, nelements, psiSecParam, bitSize, chls[nextIdx], otCountRecv, otRecv[nextIdx], otSend[nextIdx], ZeroBlock, true);
+							recv[nextIdx].init(opt, nParties, setSize, psiSecParam, bitSize, chls[nextIdx], otCountRecv, otRecv[nextIdx], otSend[nextIdx], ZeroBlock, true);
 						}
 					});
 
@@ -1770,7 +1774,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 						//std::cout << IoStream::lock;
 						//std::cout << myIdx << "| : " << "| thr[" << pIdx << "]:" << myIdx << " -> " << nextIdx << ": " << static_cast<int16_t>(dummy[nextIdx]) << "\n";
 						//std::cout << IoStream::unlock;
-						send[nextIdx].init(opt, nParties, nelements, psiSecParam, bitSize, chls[nextIdx], otCountSend, otSend[nextIdx], otRecv[nextIdx], prng.get<block>(), false);
+						send[nextIdx].init(opt, nParties, setSize, psiSecParam, bitSize, chls[nextIdx], otCountSend, otSend[nextIdx], otRecv[nextIdx], prng.get<block>(), false);
 					});
 				}
 			}
@@ -1785,7 +1789,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 				//std::cout << myIdx << "| : " << "| thr[" << pThrds.size() - 1 << "]:" << myIdx << " --> " << leaderIdx << ": " << static_cast<int16_t>(dummy[leaderIdx]) << "\n";
 				//std::cout << IoStream::unlock;
 
-				send[leaderIdx].init(opt, nParties, nelements, psiSecParam, bitSize, chls[leaderIdx], otCountSend, otSend[leaderIdx], otRecv[leaderIdx], prng.get<block>(), false);
+				send[leaderIdx].init(opt, nParties, setSize, psiSecParam, bitSize, chls[leaderIdx], otCountSend, otSend[leaderIdx], otRecv[leaderIdx], prng.get<block>(), false);
 			});
 
 		}
@@ -1800,7 +1804,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 					std::cout << myIdx << "| : " << "| thr[" << pIdx << "]:" << pIdx << " --> " << myIdx << ": " << static_cast<int16_t>(revDummy[pIdx]) << "\n";
 					std::cout << IoStream::unlock;*/
 
-					recv[pIdx].init(opt, nParties, nelements, psiSecParam, bitSize, chls[pIdx], otCountRecv, otRecv[pIdx], otSend[pIdx], ZeroBlock, false);
+					recv[pIdx].init(opt, nParties, setSize, psiSecParam, bitSize, chls[pIdx], otCountRecv, otRecv[pIdx], otSend[pIdx], ZeroBlock, false);
 				});
 
 			}
@@ -2112,7 +2116,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 		if (myIdx != leaderIdx)
 		{
 
-			for (u64 i = 0; i < nelements; ++i)
+			for (u64 i = 0; i < setSize; ++i)
 			{
 				//xor all received share
 				for (u64 idxP = 0; idxP < ttParties; ++idxP)
@@ -2154,7 +2158,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 			//u64 maskSize = roundUpTo(psiSecParam + 2 * std::log2(setSize) - 1, 8) / 8;
 			u64 count1 = 0;
 			u64 count2 = 0;
-			for (u64 i = 0; i < nelements; ++i)
+			for (u64 i = 0; i < setSize; ++i)
 			{
 				// comment 20220104
 				// 对各方数据进行异或
@@ -2847,9 +2851,6 @@ void aug_party(u64 myIdx, u64 nParties, u64 setSize,  u64 opt, u64 nTrials)
 					}
 				}
 			}
-
-
-
 			std::cout << "setSize: " << setSize << "\n"
 				<< "offlineTime:  " << offlineTime << " ms\n"
 				<< "hashingTime:  " << hashingTime << " ms\n"
