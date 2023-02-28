@@ -1394,8 +1394,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 	std::fstream runtime;
 	u64 leaderIdx = nParties - 1; //leader party
 
-	u8 **elements; //add 20220113: 待求交集的数据
-    u64 nelements=0, *elebytelens;
+    std::vector<u64> elements; //add 20220113: 待求交集的数据
 	u32 elebytelen=16, symsecbits=128, intersect_size = 0, i, j, ntasks=1,
 			pnelements, *res_bytelens, nclients = 2;
 	std::cout << "tparty input filename:" << inputFilename << "\n";
@@ -1403,17 +1402,13 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 
 	//read in files and get elements and byte-length from there
 	std::cout << "++++++++++start read_elements++++++++++" << "\n";
-	read_elements(&elements, &elebytelens, &nelements, inputFilename);
+    read_txt_file(elements, inputFilename);
 
-	std::vector<std::string> itemStrVector(nelements); //add by 20220121: 明文元素集合
-	// for(i = 0; i < nelements; i++) {
-	// 	std::cout << "Element " << i << ": ";
-	// 	for(j = 0; j < (elebytelens)[i]; j++) {
-	// 		std::cout << (elements)[i][j];
-	// 	}
-	// 	std::cout << std::endl;
-	// }
-
+	std::vector<std::string> itemStrVector(elements.size()); //add by 20220121: 明文元素集合
+    itemStrVector = vec_to_string(elements);
+//    for (const auto& element : elements) {
+//        std::cout << element << std::endl;
+//    }
 	// comment 20220104
 	if (myIdx == 0) // client party is 0
 		runtime.open("./runtime_client.txt", runtime.app | runtime.out);
@@ -1487,13 +1482,13 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 	// comment 20220111
 	// 设置Channel
 	for (u64 i = 0; i < nParties; ++i)
-	{
+    {
 		dummy[i] = myIdx * 10 + i;
 
-		if (i != myIdx) {
+        if (i != myIdx) {
 			chls[i].resize(numThreads);
 			for (u64 j = 0; j < numThreads; ++j)
-			{
+            {
                 std::cout << "channel" << i << " to " << j << std::endl;
  				//chls[i][j] = &ep[i].addChannel("chl" + std::to_string(j), "chl" + std::to_string(j));
 				chls[i][j] = &ep[i].addChannel(name, name); // name="psi"
@@ -1533,32 +1528,31 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 
         // add by 20220114
 		std::cout << "==========start build set==========" << "\n";
-		for(i = 0; i < nelements; i++) {
-            std::string itemStr = "";
-			for(j = 0; j < (elebytelens)[i]; j++) {
-				itemStr += (elements)[i][j];
-			}
+        for(i = 0; i < elements.size(); i++){
+            std::string itemStr;
+            itemStr = std::to_string(elements[i]);
             itemStrVector[i] = itemStr;
+            std::cout << itemStrVector[i] << std::endl;
 
-			std::hash<std::string> str_hash;
-			time_t salt = std::time(NULL);
-			// std::cout<< "salt:" << std::to_string(salt) << "\n";
-			std::string strHash = std::to_string(str_hash(itemStr)); //c++ origin hash
+            std::hash<std::string> str_hash;
+            time_t salt = std::time(NULL);
+            // std::cout<< "salt:" << std::to_string(salt) << "\n";
+            std::string strHash = std::to_string(str_hash(itemStr)); //c++ 原生hash
 
-			int len = strHash.length();
-			int b[4] = {};
-			for ( std::string::size_type k = 0, m = 0; k < 4 && m < strHash.size(); m++ )
-			{
-				b[k] = b[k] << len | (unsigned char)strHash[m];
-				if ( m % sizeof( *b ) == sizeof( *b ) - 1 ) k++;
-			}
+            int len = strHash.length();
+            int b[4] = {};
+            for ( std::string::size_type k = 0, m = 0; k < 4 && m < strHash.size(); m++ )
+            {
+                b[k] = b[k] << len | (unsigned char)strHash[m];
+                if ( m % sizeof( *b ) == sizeof( *b ) - 1 ) k++;
+            }
 
-			block seed1 = _mm_set_epi32(std::stoi(itemStr), std::stoi(itemStr),std::stoi(itemStr),std::stoi(itemStr));
-			PRNG myPrng(seed1);
-			set[i] = myPrng.get<block>();
-			std::cout << "set i=" << set[i] << "\n";
-		}
-        for(i = nelements; i < setSize; i++){
+            block seed1 = _mm_set_epi32(b[0],b[1],b[2],b[3]);
+            PRNG myPrng(seed1);
+            set[i] = myPrng.get<block>();
+            std::cout << set[i] << "\n";
+        }
+        for(i = elements.size(); i < setSize; i++){
             PRNG diffPrng(_mm_set_epi32(434653, 23, myIdx * setSize + i, myIdx * setSize + i));
             set[i] = diffPrng.get<block>();
         }
@@ -2273,7 +2267,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 				num_intersection = mIntersection.size();
 			}
 
-			std::cout << "setSize: " << nelements << "\n"
+			std::cout << "setSize: " << elements.size() << "\n"
 				<< "offlineTime:  " << offlineTime << " ms\n"
 				<< "hashingTime:  " << hashingTime << " ms\n"
 				<< "getOPRFTime:  " << getOPRFTime << " ms\n"
@@ -2311,7 +2305,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 		runtime << "=========avg==========\n";
 		runtime << "numParty: " << nParties
 			<< "  numCorrupted: " << tParties
-			<< "  setSize: " << nelements
+			<< "  setSize: " << elements.size()
 			<< "  nTrials:" << nTrials << "\n";
 
 		if (myIdx == 0)
@@ -2332,7 +2326,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 
 		std::cout << "numParty: " << nParties
 			<< "  numCorrupted: " << tParties
-			<< "  setSize: " << nelements
+			<< "  setSize: " << elements.size()
 			<< "  nTrials:" << nTrials << "\n"
 			<< "offlineTime:  " << offlineAvgTime / nTrials << " ms\n"
 			<< "hashingTime:  " << hashingAvgTime / nTrials << " ms\n"
@@ -2340,7 +2334,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 			<< "ssClientTime:  " << ss2DirAvgTime / nTrials << " ms\n"
 			<< "ssLeaderTime:  " << ssRoundAvgTime / nTrials << " ms\n"
 			<< "intersection:  " << intersectionAvgTime / nTrials << " ms\n"
-			<< "onlineTime:  " << onlineAvgTime / nTrials << " ms\n"
+			<< "onlineTime:  " << onlineAvgTime / nTrials <<    " ms\n"
 			//<< "Bandwidth: Send: " << Mbps << " Mbps,\t Recv: " << MbpsRecv << " Mbps\n"
 			<< "Total time: " << avgTime / nTrials << " s\n"
 			//<< "Total Comm: Send:" << (dataSent / std::pow(2.0, 20)) << " MB"
@@ -2412,7 +2406,6 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 
 	ios.stop();
 }
-
 
 void BinSize(u64 setSize, std::vector<block> set,u64 psiSecParam)
 {
@@ -4132,43 +4125,55 @@ void OPPRFnt_EmptrySet_Test_Impl()
 //	ios.stop();
 //}
 
-void read_elements(u8*** elements, u64** elebytelens, u64* nelements, std::string filename) {
-	u32 i, j;
-	std::ifstream infile(filename.c_str());
-	if(!infile.good()) {
-		std::cout << "Input file " << filename << " does not exist, program exiting!" << std::endl;
-		exit(0);
-	}
-	std::string line;
-	if(*nelements == 0) {
-		while (std::getline(infile, line)) {
-			++*nelements;
-		}
-	}
-	std::cout << "nelements:" << *nelements << std::endl;
+std::vector<std::string> vec_to_string(const std::vector<u64>& vec) {
+    std::vector<std::string> result(vec.size());
+    std::transform(vec.begin(), vec.end(), result.begin(), [](const u64& element) {
+        return std::to_string(element);
+    });
+    return result;
+}
 
-	*elements=(u8**) malloc(sizeof(u8*)*(*nelements));
-	*elebytelens = (u64*) malloc(sizeof(u64) * (*nelements));
+void read_txt_file(std::vector<u64>& elements, const std::string& filename) {
+    // 打开文本文件
+    std::ifstream file(filename);
 
-	infile.clear();
-	infile.seekg(std::ios::beg);
-	std::cout << "++++++++++begin read file++++++++++" << std::endl;
-	for(i = 0; i < *nelements; i++) {
-		// assert(std::getline(infile, line));
-		std::getline(infile, line);
-		(*elebytelens)[i] = line.length();
-		(*elements)[i] = (u8*) malloc((*elebytelens)[i]);
-		// std::cout << i << ":" << line.c_str() << std::endl;
-		memcpy((*elements)[i], (u8*) line.c_str(), (*elebytelens)[i]);
+    // 逐行读取数据并将其转换为 u64 类型，然后添加到向量中
+    u64 element;
+    while (file >> element) {
+        elements.push_back(element);
+    }
+}
 
-#ifdef PRINT_INPUT_ELEMENTS
-		std::cout << "Element " << i << ": ";
-		for(j = 0; j < (*elebytelens)[i]; j++)
-			std::cout << (*elements)[i][j];
-		std::cout << std::endl;
-#endif
-	}
-	std::cout << "++++++++++end read file++++++++++" << std::endl;
+void read_csv_file(u64*** elements, u64* nelements, std::string filename) {
+    // 打开CSV文件
+    std::ifstream file(filename.c_str());
+    if(!file.good()) {
+        std::cout << "Input file " << filename << " does not exist, program exiting!" << std::endl;
+        exit(0);
+    }
+    // 跳过第一行标题行
+    std::string line;
+    std::getline(file, line);
+
+    // 逐行读取CSV数据并提取第一列数据
+    std::vector<u64> data;
+    while (std::getline(file, line)) {
+        // 解析逗号分隔的数据项
+        std::istringstream iss(line);
+        std::string token;
+        std::getline(iss, token, ',');
+        u64 element = static_cast<u64>(std::stoi(token));
+
+        // 添加数据到向量中
+        data.push_back(element);
+    }
+
+    // 将数据保存到输出参数中
+    *nelements = data.size();
+    *elements = new u64*[*nelements];
+    for (u64 i = 0; i < *nelements; ++i) {
+        (*elements)[i] = new u64(data[i]);
+    }
 }
 
 void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector<u64> mIntersection, std::string filename){
@@ -4260,3 +4265,4 @@ std::string get_local_ip_address() {
     freeifaddrs(ifaddr);
     return ip_address;
 }
+
