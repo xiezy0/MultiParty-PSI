@@ -1402,7 +1402,8 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 
 	//read in files and get elements and byte-length from there
 	std::cout << "++++++++++start read_elements++++++++++" << "\n";
-    read_txt_file(elements, inputFilename);
+    // read_txt_file(elements, inputFilename);
+    read_csv_column(elements, inputFilename);
 
 	std::vector<std::string> itemStrVector(elements.size()); //add by 20220121: 明文元素集合
     itemStrVector = vec_to_string(elements);
@@ -4144,35 +4145,33 @@ void read_txt_file(std::vector<u64>& elements, const std::string& filename) {
     }
 }
 
-void read_csv_file(u64*** elements, u64* nelements, std::string filename) {
-    // 打开CSV文件
-    std::ifstream file(filename.c_str());
-    if(!file.good()) {
-        std::cout << "Input file " << filename << " does not exist, program exiting!" << std::endl;
-        exit(0);
+void read_csv_column(std::vector<u64>& elements, const std::string& filename) {
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        // 文件无法打开
+        throw std::runtime_error("Unable to open file " + filename);
     }
-    // 跳过第一行标题行
+
     std::string line;
-    std::getline(file, line);
+    bool first_line = true;
 
-    // 逐行读取CSV数据并提取第一列数据
-    std::vector<u64> data;
+    // 逐行读取文件内容
     while (std::getline(file, line)) {
-        // 解析逗号分隔的数据项
-        std::istringstream iss(line);
-        std::string token;
-        std::getline(iss, token, ',');
-        u64 element = static_cast<u64>(std::stoi(token));
+        // 跳过第一行
+        if (first_line) {
+            first_line = false;
+            continue;
+        }
 
-        // 添加数据到向量中
-        data.push_back(element);
-    }
+        std::stringstream ss(line);
+        std::string cell;
 
-    // 将数据保存到输出参数中
-    *nelements = data.size();
-    *elements = new u64*[*nelements];
-    for (u64 i = 0; i < *nelements; ++i) {
-        (*elements)[i] = new u64(data[i]);
+        // 读取第一列数据
+        std::getline(ss, cell, ',');
+
+        // 将数据转换为整数类型，并添加到向量中
+        elements.push_back(std::stoull(cell));
     }
 }
 
