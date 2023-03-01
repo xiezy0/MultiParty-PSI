@@ -151,11 +151,10 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
         std::vector<block> recvPayLoads(setSize);
 
         //only P0 genaretes secret sharing
-        if (myIdx == 0)
-        {
+        // if (myIdx == 0) {
             for (u64 i = 0; i < setSize; ++i)
                 sendPayLoads[i] = prng.get<block>();
-        }
+        // }
 
         std::vector<KkrtNcoOtReceiver> otRecv(nParties);
         std::vector<KkrtNcoOtSender> otSend(nParties);
@@ -282,8 +281,7 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
         pThrds.clear();
         pThrds.resize(nParties - 1);
 
-        if (myIdx == 0)
-        {
+        //if (myIdx == 0) {
             //for (u64 pIdx = 0; pIdx < pThrds.size(); ++pIdx)
             //{
             //	pThrds[pIdx] = std::thread([&, pIdx]() {
@@ -297,9 +295,7 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
             //}
             send.sendSSTableBased(nextNeibough, bins, sendPayLoads, chls[nextNeibough]);
             recv.recvSSTableBased(prevNeibough, bins, recvPayLoads, chls[prevNeibough]);
-        }
-        else
-        {
+        //} else{
             /*for (u64 pIdx = 0; pIdx < pThrds.size(); ++pIdx)
             {
             pThrds[pIdx] = std::thread([&, pIdx]() {
@@ -311,11 +307,11 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
             }
             });
             }	*/
-            recv.recvSSTableBased(prevNeibough, bins, recvPayLoads, chls[prevNeibough]);
+            //recv.recvSSTableBased(prevNeibough, bins, recvPayLoads, chls[prevNeibough]);
             //sendPayLoads = recvPayLoads;
-            send.sendSSTableBased(nextNeibough, bins, recvPayLoads, chls[nextNeibough]);
+            //send.sendSSTableBased(nextNeibough, bins, recvPayLoads, chls[nextNeibough]);
 
-        }
+        //}
 
         /*for (u64 pIdx = 0; pIdx < pThrds.size(); ++pIdx)
         pThrds[pIdx].join();*/
@@ -357,7 +353,7 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
 
         std::vector<block> mIntersection;
         std::vector<u64> mIntersectionPos;
-        if (myIdx == 0) {
+        //if (myIdx == 0) {
             std::cout << "==========Begin leader exec online phasing - compute intersection==========" << "\n";
 
             for (u64 i = 0; i < setSize; ++i)
@@ -370,7 +366,7 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
                 }
             }
             Log::out << "mIntersection.size(): " << mIntersection.size() << Log::endl;
-        }
+        //}
         auto getIntersection = timer.setTimePoint("getIntersection");
 
         num_intersection = mIntersection.size();
@@ -386,7 +382,7 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
 
 
 
-        if (myIdx == 0) {
+        //if (myIdx == 0) {
             auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(initDone - start).count();
             auto hashingTime = std::chrono::duration_cast<std::chrono::milliseconds>(hashingDone - initDone).count();
             auto getOPRFTime = std::chrono::duration_cast<std::chrono::milliseconds>(getOPRFDone - hashingDone).count();
@@ -455,10 +451,10 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
             secretSharingAvgTime += secretSharingTime;
             intersectionAvgTime += intersectionTime;
             onlineAvgTime += onlineTime;
-        }
+        //}
     }
 
-    if (myIdx == 0) {
+    //if (myIdx == 0) {
         double avgTime = (offlineAvgTime + onlineAvgTime);
         avgTime /= 1000;
         std::cout << "=========avg==========\n"
@@ -492,7 +488,7 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
                 //<< "\t Recv: " << (dateRecv / std::pow(2.0, 20)) << " MB\n"
                 << "------------------\n";
         runtime.close();
-    }
+    //}
 
     for (u64 i = 0; i < nParties; ++i)
     {
