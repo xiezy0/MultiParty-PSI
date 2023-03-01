@@ -25,7 +25,7 @@ void read_elements(u64** elements, u64* nelements, std::string filename);
 void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector<u64> elements, std::string filename);
 std::vector<std::string> vec_to_string(const std::vector<u64>& vec);
 void read_txt_file(std::vector<u64>& elements, const std::string& filename);
-void read_csv_column(std::vector<u64>& elements, const std::string& filename);
+void read_csv_column(std::vector<u64>& elements, std::vector<std::string>& elementsLine, const std::string& filename);
 bool file_exists(const std::string& file_name);
 void GetPrimaryIp(char (&buffer)[80]);
 std::string get_local_ip_address();

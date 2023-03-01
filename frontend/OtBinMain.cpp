@@ -1395,6 +1395,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 	u64 leaderIdx = nParties - 1; //leader party
 
     std::vector<u64> elements; //add 20220113: 待求交集的数据
+    std::vector<std::string> elementsLine;
 	u32 elebytelen=16, symsecbits=128, intersect_size = 0, i, j, ntasks=1,
 			pnelements, *res_bytelens, nclients = 2;
 	std::cout << "tparty input filename:" << inputFilename << "\n";
@@ -1403,7 +1404,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 	//read in files and get elements and byte-length from there
 	std::cout << "++++++++++start read_elements++++++++++" << "\n";
     // read_txt_file(elements, inputFilename);
-    read_csv_column(elements, inputFilename);
+    read_csv_column(elements, elementsLine, inputFilename);
 
 	std::vector<std::string> itemStrVector(elements.size()); //add by 20220121: 明文元素集合
     itemStrVector = vec_to_string(elements);
@@ -1530,15 +1531,12 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
         // add by 20220114
 		std::cout << "==========start build set==========" << "\n";
         for(i = 0; i < elements.size(); i++){
-            std::string itemStr;
-            itemStr = std::to_string(elements[i]);
-            itemStrVector[i] = itemStr;
             std::cout << itemStrVector[i] << std::endl;
 
             std::hash<std::string> str_hash;
             time_t salt = std::time(NULL);
             // std::cout<< "salt:" << std::to_string(salt) << "\n";
-            std::string strHash = std::to_string(str_hash(itemStr)); //c++ 原生hash
+            std::string strHash = std::to_string(str_hash(itemStrVector[i])); //c++ 原生hash
 
             int len = strHash.length();
             int b[4] = {};
@@ -2198,9 +2196,9 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 			}
 			std::cout << "交集原文：" << "\n";
 			for(auto &&intersectionPos : mIntersectionPos) {
-				std::cout << itemStrVector[intersectionPos] << "\n";
+				std::cout << elementsLine[intersectionPos] << "\n";
 			}
-            write_elements(itemStrVector, mIntersectionPos, outputFilename);
+            write_elements(elementsLine, mIntersectionPos, outputFilename);
 
 			std::cout << "==========End leader exec online phasing - compute intersection==========" << "\n";
 
@@ -4145,7 +4143,7 @@ void read_txt_file(std::vector<u64>& elements, const std::string& filename) {
     }
 }
 
-void read_csv_column(std::vector<u64>& elements, const std::string& filename) {
+void read_csv_column(std::vector<u64>& elements, std::vector<std::string>& elementsLine, const std::string& filename) {
     std::ifstream file(filename);
 
     if (!file.is_open()) {
@@ -4158,7 +4156,8 @@ void read_csv_column(std::vector<u64>& elements, const std::string& filename) {
 
     // 逐行读取文件内容
     while (std::getline(file, line)) {
-        // 跳过第一行
+        elementsLine.push_back(line);
+        // skip first row
         if (first_line) {
             first_line = false;
             continue;
@@ -4167,7 +4166,7 @@ void read_csv_column(std::vector<u64>& elements, const std::string& filename) {
         std::stringstream ss(line);
         std::string cell;
 
-        // 读取第一列数据
+        // read first column
         std::getline(ss, cell, ',');
 
         // 将数据转换为整数类型，并添加到向量中
@@ -4179,10 +4178,11 @@ void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector
     if (!file_exists("output/" + filename)){
         std::ofstream out_file("output/" + filename);
         // std::ofstream out_file(std::experimental::filesystem::path("output") / filename);
-
+        // this is title row
+        out_file << itemVector[0] << std::endl;
         // 将向量中的每个元素输出到文件中，每个元素占一列
         for (const auto& elem : mIntersection) {
-            out_file << itemVector[elem] << std::endl;
+            out_file << itemVector[elem+1] << std::endl;
         }
 
         // 关闭文件
