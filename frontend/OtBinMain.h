@@ -29,4 +29,5 @@ void read_csv_column(std::vector<u64>& elements, std::vector<std::string>& eleme
 bool file_exists(const std::string& file_name);
 void GetPrimaryIp(char (&buffer)[80]);
 std::string get_local_ip_address();
+bool is_in_dual_area(u64 startIdx, u64 endIdx, u64 numIdx, u64 checkIdx);
 //void OPPRFn_EmptrySet_Test();

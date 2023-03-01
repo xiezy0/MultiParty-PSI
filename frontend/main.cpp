@@ -114,7 +114,7 @@ int main(int argc, char** argv)
 		if (argv[3][0] == '-' && argv[3][1] == 'r' && nParties == 3)
 		{
 			roundOPPRF = atoi(argv[4]);
-			tParties = 2; // tParties：不诚实方数量
+            tParties=1;
 		}
 		// comment by 20220104
 		// -t：number of corrupted parties (in semihonest setting)
@@ -189,6 +189,7 @@ int main(int argc, char** argv)
 				cout << " log log: =======================exec tparty=======================\n";
 				cout << "pIdx:" << pIdx << " nParties:" << nParties << " tParties:" << tParties << " setSize:" << setSize << " trials:" << trials << " filename:" << inputFilename << " hostIpArr.size():" << hostIpArr.size() << "\n";
 				tparty(pIdx, nParties, tParties, setSize, trials, hostIpArr, inputFilename, outputFilename);
+                //party3(pIdx, setSize, 1);
 			}
 			else if (argv[3][1] == 'a')
 			{
