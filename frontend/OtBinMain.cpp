@@ -1579,7 +1579,7 @@ void OPPRF3_EmptrySet_Test_Main()
 	{
 		pThrds[pIdx] = std::thread([&, pIdx]() {
 			//	Channel_party_test(pIdx);
-			party3(pIdx, setSize, 1);
+			//party3(pIdx, setSize, 1);
 		});
 	}
 	for (u64 pIdx = 0; pIdx < pThrds.size(); ++pIdx)

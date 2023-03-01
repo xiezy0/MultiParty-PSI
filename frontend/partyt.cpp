@@ -215,24 +215,6 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
         }
         std::cout << "==========end build set==========" << "\n";
 
-        // // comment by 20220110
-        // // 创建交集数据
-        // std::cout << "==========start expected_intersection==========" << "\n";
-        // for (u64 i = 0; i < expected_intersection; ++i)
-        // {
-        // 	set[i] = prngSame.get<block>();
-        // 	// std::cout << set[i] << "\n";
-        // }
-        // std::cout << "==========expected_intersection count:" << expected_intersection << "==========\n";
-        // std::cout << "==========end expected_intersection==========" << "\n";
-
-        // // comment by 20220110
-        // // 创建非交集数据
-        // for (u64 i = expected_intersection; i < setSize; ++i)
-        // {
-        // 	set[i] = prngDiff.get<block>();
-        // }
-
 #ifdef PRINT
         std::cout << IoStream::lock;
 		if (myIdx != leaderIdx) {

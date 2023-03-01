@@ -182,14 +182,14 @@ int main(int argc, char** argv)
 			if (roundOPPRF == 1 && nParties == 3)
 			{
 				//cout << nParties  << " " << roundOPPRF << " " << setSize << " " << pIdx << "\n";
-				party3(pIdx, setSize, trials);
+				//party3(pIdx, setSize, trials);
 			}
 			else if (argv[3][1] == 't') // log:重点关注这个分支
 			{
 				cout << " log log: =======================exec tparty=======================\n";
 				cout << "pIdx:" << pIdx << " nParties:" << nParties << " tParties:" << tParties << " setSize:" << setSize << " trials:" << trials << " filename:" << inputFilename << " hostIpArr.size():" << hostIpArr.size() << "\n";
-				tparty(pIdx, nParties, tParties, setSize, trials, hostIpArr, inputFilename, outputFilename);
-                //party3(pIdx, setSize, 1);
+				//tparty(pIdx, nParties, tParties, setSize, trials, hostIpArr, inputFilename, outputFilename);
+                party3(pIdx, setSize, trials, hostIpArr, inputFilename, outputFilename);
 			}
 			else if (argv[3][1] == 'a')
 			{

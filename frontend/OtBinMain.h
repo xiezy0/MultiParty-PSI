@@ -30,4 +30,5 @@ bool file_exists(const std::string& file_name);
 void GetPrimaryIp(char (&buffer)[80]);
 std::string get_local_ip_address();
 bool is_in_dual_area(u64 startIdx, u64 endIdx, u64 numIdx, u64 checkIdx);
+void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIpArr, std::string inputFilename, std::string outputFilename);
 //void OPPRFn_EmptrySet_Test();

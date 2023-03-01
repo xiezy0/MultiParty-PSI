@@ -43,14 +43,21 @@ using namespace osuCrypto;
 #define threadss {1/*1,4,16,64*/}
 #define  numTrial 2
 
-void party3(u64 myIdx, u64 setSize, u64 nTrials)
+void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIpArr, std::string inputFilename, std::string outputFilename)
 {
     u64 nParties(3);
     u64 opt = 0;
     std::fstream runtime;
     bool isNTLThreadSafe = false;
-    if (myIdx == 0)
-        runtime.open("./runtime3.txt", runtime.trunc | runtime.out);
+
+    std::vector<u64> elements; //add: 待求交集的数据
+    std::vector<std::string> elementsLine; // read every line
+
+    std::cout << "++++++++++start read_elements++++++++++" << "\n";
+    // read_txt_file(elements, inputFilename);
+    read_csv_column(elements, elementsLine, inputFilename);
+    std::vector<std::string> itemStrVector(elements.size()); //add by 20220121: 明文元素集合
+    itemStrVector = vec_to_string(elements);
 
     u64 offlineAvgTime(0), hashingAvgTime(0), getOPRFAvgTime(0),
             secretSharingAvgTime(0), intersectionAvgTime(0), onlineAvgTime(0);
@@ -60,25 +67,28 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials)
 
     std::string name("psi");
     BtIOService ios(0);
-
-    int btCount = nParties;
     std::vector<BtEndpoint> ep(nParties);
-
-    u64 offlineTimeTot(0);
-    u64 onlineTimeTot(0);
     Timer timer;
+
+    for(u64 i = 0, j = 0; i < myIdx && j < hostIpArr.size() && i < nParties; ++j, ++i) {
+        std::cout<< "tparty() if (i < myIdx)" << std::endl;
+        u32 port = 1200 + i * 100 + myIdx;//get the same port; i=1 & pIdx=2 =>port=102
+        // u32 port = 1301; 200+1
+        std::string remoteIp(hostIpArr[j]);
+        std::cout<< "hostIp:port "<< remoteIp << ":" << port <<std::endl;
+        ep[i].start(ios, remoteIp, port, false, name); //channel bwt i and pIdx, where i is sender
+    }
+    std::string localIp = get_local_ip_address();
 
     for (u64 i = 0; i < nParties; ++i)
     {
-        if (i < myIdx)
+        if (i > myIdx)
         {
-            u32 port = 1120 + i * 100 + myIdx;//get the same port; i=1 & pIdx=2 =>port=102
-            ep[i].start(ios, "localhost", port, false, name); //channel bwt i and pIdx, where i is sender
-        }
-        else if (i > myIdx)
-        {
-            u32 port = 1120 + myIdx * 100 + i;//get the same port; i=2 & pIdx=1 =>port=102
-            ep[i].start(ios, "localhost", port, true, name); //channel bwt i and pIdx, where i is receiver
+            std::cout<< "tparty() else if (i > myIdx)" << std::endl;
+            u32 port = 1200 + myIdx * 100 + i;//get the same port; i=2 & pIdx=1 =>port=102
+            // u32 port = 1200; 1201
+            std::cout<< "hostIp:port "<< localIp << ":" << port <<std::endl;
+            ep[i].start(ios, localIp, port, true, name); //channel bwt i and pIdx, where i is receiver
         }
     }
 
@@ -110,15 +120,32 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials)
         block blk_rand = prngSame.get<block>();
         expected_intersection = (*(u64*)&blk_rand) % setSize;
 
-        for (u64 i = 0; i < expected_intersection; ++i)
-        {
-            set[i] = prngSame.get<block>();
-        }
+        std::cout << "==========start build set==========" << "\n";
+        for(u32 i = 0; i < elements.size(); i++){
+            std::cout << itemStrVector[i] << std::endl;
 
-        for (u64 i = expected_intersection; i < setSize; ++i)
-        {
-            set[i] = prngDiff.get<block>();
+            std::hash<std::string> str_hash;
+            time_t salt = std::time(NULL);
+            std::string strHash = std::to_string(str_hash(itemStrVector[i])); //c++ 原生hash
+
+            int len = strHash.length();
+            int b[4] = {};
+            for ( std::string::size_type k = 0, m = 0; k < 4 && m < strHash.size(); m++ )
+            {
+                b[k] = b[k] << len | (unsigned char)strHash[m];
+                if ( m % sizeof( *b ) == sizeof( *b ) - 1 ) k++;
+            }
+
+            block seed1 = _mm_set_epi32(b[0],b[1],b[2],b[3]);
+            PRNG myPrng(seed1);
+            set[i] = myPrng.get<block>();
+            std::cout << set[i] << "\n";
         }
+        for(u32 i = elements.size(); i < setSize; i++){
+            PRNG diffPrng(_mm_set_epi32(434653, 23, myIdx * setSize + i, myIdx * setSize + i));
+            set[i] = diffPrng.get<block>();
+        }
+        std::cout << "==========end build set==========" << "\n";
 
         std::vector<block> sendPayLoads(setSize);
         std::vector<block> recvPayLoads(setSize);
@@ -328,16 +355,18 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials)
         //### online phasing - compute intersection
         //##########################
 
-        std::vector<u64> mIntersection;
-
+        std::vector<block> mIntersection;
+        std::vector<u64> mIntersectionPos;
         if (myIdx == 0) {
-
+            std::cout << "==========Begin leader exec online phasing - compute intersection==========" << "\n";
 
             for (u64 i = 0; i < setSize; ++i)
             {
                 if (!memcmp((u8*)&sendPayLoads[i], &recvPayLoads[i], bins.mMaskSize))
                 {
-                    mIntersection.push_back(i);
+                    mIntersection.push_back(set[i]);
+                    mIntersectionPos.push_back(i);
+                    std::cout << set[i] << std::endl;
                 }
             }
             Log::out << "mIntersection.size(): " << mIntersection.size() << Log::endl;
@@ -345,6 +374,16 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials)
         auto getIntersection = timer.setTimePoint("getIntersection");
 
         num_intersection = mIntersection.size();
+        std::cout << "交集密文：" << "\n";
+        for(auto &&intersection : mIntersection) {
+            std::cout << intersection << "\n";
+        }
+        std::cout << "交集原文：" << "\n";
+        for(auto &&intersectionPos : mIntersectionPos) {
+            std::cout << elementsLine[intersectionPos] << "\n";
+        }
+        write_elements(elementsLine, mIntersectionPos, outputFilename);
+
 
 
         if (myIdx == 0) {
