@@ -16,14 +16,8 @@ using namespace osuCrypto;
 #include "Common/Log1.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
-#include "Crypto/Commit.h"
-#include <numeric>
 #include <iostream>
 #include <string>
-#include <sstream>
-#include <functional>
-#include <unordered_map>
-#include <time.h>
 #include <cstring>      ///< memset
 #include <errno.h>      ///< errno
 #include <sys/socket.h> ///< socket
@@ -33,13 +27,7 @@ using namespace osuCrypto;
 #include <ifaddrs.h>
 #include "OtBinMain.h"
 
-// #define OOS
-// #define PRINT
-// #define PRINT_INPUT_ELEMENTS
-#define pows  { 16/*8,12,,20*/ }
-#define threadss {1/*1,4,16,64*/}
 #define  numTrial 2
-std::vector<block> sendSet;
 std::vector<block> mSet;
 u64 nParties(3);
 

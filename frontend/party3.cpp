@@ -13,34 +13,16 @@ using namespace osuCrypto;
 #include "NChooseOne/KkrtNcoOtReceiver.h"
 #include "NChooseOne/KkrtNcoOtSender.h"
 
-#include "NChooseOne/Oos/OosNcoOtReceiver.h"
-#include "NChooseOne/Oos/OosNcoOtSender.h"
-#include "Common/Log.h"
 #include "Common/Log1.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
-#include "Crypto/Commit.h"
-#include <numeric>
 #include <iostream>
 #include <string>
-#include <sstream>
 #include <functional>
-#include <unordered_map>
 #include <time.h>
 #include <cstring>      ///< memset
-#include <errno.h>      ///< errno
-#include <sys/socket.h> ///< socket
-#include <netinet/in.h> ///< sockaddr_in
-#include <arpa/inet.h>  ///< getsockname
-#include <unistd.h>     ///< close
-#include <ifaddrs.h>
 #include "OtBinMain.h"
 
-//#define OOS
-// #define PRINT
-// #define PRINT_INPUT_ELEMENTS
-#define pows  { 16/*8,12,,20*/ }
-#define threadss {1/*1,4,16,64*/}
 #define  numTrial 2
 
 void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIpArr, std::string inputFilename, std::string outputFilename)

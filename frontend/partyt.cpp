@@ -13,34 +13,17 @@ using namespace osuCrypto;
 #include "NChooseOne/KkrtNcoOtReceiver.h"
 #include "NChooseOne/KkrtNcoOtSender.h"
 
-#include "NChooseOne/Oos/OosNcoOtReceiver.h"
-#include "NChooseOne/Oos/OosNcoOtSender.h"
 #include "Common/Log.h"
 #include "Common/Log1.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
-#include "Crypto/Commit.h"
-#include <numeric>
 #include <iostream>
 #include <string>
-#include <sstream>
 #include <functional>
-#include <unordered_map>
 #include <time.h>
 #include <cstring>      ///< memset
-#include <errno.h>      ///< errno
-#include <sys/socket.h> ///< socket
-#include <netinet/in.h> ///< sockaddr_in
-#include <arpa/inet.h>  ///< getsockname
-#include <unistd.h>     ///< close
-#include <ifaddrs.h>
 #include "OtBinMain.h"
 
-//#define OOS
-// #define PRINT
-// #define PRINT_INPUT_ELEMENTS
-#define pows  { 16/*8,12,,20*/ }
-#define threadss {1/*1,4,16,64*/}
 #define  numTrial 2
 
 
@@ -59,7 +42,7 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
     std::cout << "tparty input filename:" << inputFilename << "\n";
     // std::string filename(filename.c_str());
 
-    //read in files and get elements and byte-length from there
+    // read in files and get elements and byte-length from there
     std::cout << "++++++++++start read_elements++++++++++" << "\n";
     // read_txt_file(elements, inputFilename);
     read_csv_column(elements, elementsLine, inputFilename);
@@ -69,12 +52,6 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
 //    for (const auto& element : elements) {
 //        std::cout << element << std::endl;
 //    }
-    // comment 20220104
-//	if (myIdx == 0) // client party is 0
-//		runtime.open("./runtime_client.txt", runtime.app | runtime.out);
-//
-//	if (myIdx == leaderIdx) // leader party is n-1
-//		runtime.open("./runtime_leader.txt", runtime.app | runtime.out);
 
     std::cout << "++++++++++end read_elements++++++++++" << "\n";
 
@@ -139,7 +116,6 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
     std::vector<u8> dummy(nParties);
     std::vector<u8> revDummy(nParties);
 
-    // comment 20220111
     // 设置Channel
     for (u64 i = 0; i < nParties; ++i)
     {
@@ -168,7 +144,6 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
     PRNG prngDiff(_mm_set_epi32(434653, 23, myIdx, myIdx));
     u64 expected_intersection;
 
-    // comment 20220113
     // default nTrials=1
     for (u64 idxTrial = 0; idxTrial < nTrials; idxTrial++)
     {
