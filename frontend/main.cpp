@@ -57,147 +57,104 @@ int main(int argc, char** argv)
 
 	switch (argc) {
 	case 2: //unit test
-		if (argv[1][0] == '-' && argv[1][1] == 'u')
-			OPPRFnt_EmptrySet_Test_Main();
+		if (argv[1][0] == '-' && argv[1][1] == 'u') {
+            OPPRFnt_EmptrySet_Test_Main();
+        }
 		break;
 
 	case 7: //2PSI 
-		if (argv[1][0] == '-' && argv[1][1] == 'n')
-			nParties = atoi(argv[2]);
-		else
-		{
+		if (argv[1][0] == '-' && argv[1][1] == 'n') {
+            nParties = atoi(argv[2]);
+        } else {
 			usage(argv[0]);
 			return 0;
 		}
 
-		if (argv[3][0] == '-' && argv[3][1] == 'm')
-			setSize = 1 << atoi(argv[4]);
-		else
-		{
+		if (argv[3][0] == '-' && argv[3][1] == 'm') {
+            setSize = 1 << atoi(argv[4]);
+        } else {
 			usage(argv[0]);
 			return 0;
 		}
 
 		if (argv[5][0] == '-' && argv[5][1] == 'p') {
 			u64 pIdx = atoi(argv[6]);
-			if (nParties == 2)
-				party2(pIdx, setSize);
-			else
-			{
+			if (nParties == 2) {
+                party2(pIdx, setSize);
+            } else {
 				usage(argv[0]);
 				return 0;
 			}
-		}
-		else
-		{
+		} else {
 			usage(argv[0]);
 			return 0;
 		}
 		break;
 	// case 9: //nPSI or optimized 3PSI
-	case 15: //nPSI or optimized 3PSI
+	case 13: //nPSI or optimized 3PSI
 		cout << "nPSI or optimized 3PSI: argc=15\n";
 		// comment by 20211231
 		// -n：number of parties
-		if (argv[1][0] == '-' && argv[1][1] == 'n')
-			// comment by 20211231
-			// int atoi(const char *str) 把参数 str 所指向的字符串转换为一个整数（类型为 int 型）
-			// nParties：参与方数量
-			nParties = atoi(argv[2]); 
-		else
-		{
-			usage(argv[0]);
-			return 0;
-		}
-		// comment by 20220104
-		// -r：optimized 3PSI when r = 1
-		if (argv[3][0] == '-' && argv[3][1] == 'r' && nParties == 3)
-		{
-			roundOPPRF = atoi(argv[4]);
-            tParties=1;
-		}
-		// comment by 20220104
-		// -t：number of corrupted parties (in semihonest setting)
-		else if (argv[3][0] == '-' && argv[3][1] == 't')
-			tParties = atoi(argv[4]);
-		// comment by 20220104
-		// -a：run in augmented semihonest model. Table-based OPPRF is by default.
-		//	0: Table-based; 1: POLY-seperated; 2-POLY-combined; 3-BloomFilter
-		else if (argv[3][0] == '-' && argv[3][1] == 'a')
-			opt_basedOPPRF = atoi(argv[4]);
-		else
-		{
+		if (argv[1][0] == '-' && argv[1][1] == 'n') {
+            // comment by 20211231
+            // int atoi(const char *str) 把参数 str 所指向的字符串转换为一个整数（类型为 int 型）
+            // nParties：参与方数量
+            nParties = atoi(argv[2]);
+        } else {
 			usage(argv[0]);
 			return 0;
 		}
 
 		// comment by 20220104
 		// -m：set size
-		if (argv[5][0] == '-' && argv[5][1] == 'm')
-			setSize = 1 << atoi(argv[6]); // 1左移x位，即为2^x
-		else
-		{
+		if (argv[3][0] == '-' && argv[3][1] == 'm') {
+            setSize = 1 << atoi(argv[4]); // 1左移x位，即为2^x
+        } else {
 			usage(argv[0]);
 			return 0;
 		}
 
-		if (argv[9][0] == '-' && argv[9][1] == 'i')
-		{
-			inputFilename = argv[10];
+		if (argv[7][0] == '-' && argv[7][1] == 'i') {
+			inputFilename = argv[8];
 			cout << "argv[10] filename:"<< inputFilename <<"\n";
-		}
-		else
-		{
+		} else {
 			usage(argv[0]);
 			return 0;
 		}
 
-        if (argv[11][0] == '-' && argv[11][1] == 'o'){
-            outputFilename = argv[12];
-            cout << "argv[12] filename:"<< outputFilename <<"\n";
-        }else{
+        if (argv[9][0] == '-' && argv[9][1] == 'o') {
+            outputFilename = argv[10];
+            cout << "argv[10] filename:"<< outputFilename <<"\n";
+        } else {
             usage(argv[0]);
             return 0;
         }
 
-		if (argv[13][0] == '-' && argv[13][1] == 'i' && argv[13][2] == 'p')
-		{
-			hostIpStr = argv[14];
-
+		if (argv[11][0] == '-' && argv[11][1] == 'i' && argv[11][2] == 'p') {
+			hostIpStr = argv[12];
 			boost::split(hostIpArr, hostIpStr, boost::is_any_of(","), boost::token_compress_on);
 			for(auto &&hostIp : hostIpArr) {
 				std::cout << hostIp << "\n";
 			}
-		}
-		else
-		{
+		} else {
 			usage(argv[0]);
 			return 0;
 		}
 
 		// comment by 20220104
 		// -p：party ID
-		if (argv[7][0] == '-' && argv[7][1] == 'p') {
-			u64 pIdx = atoi(argv[8]);
-			if (roundOPPRF == 1 && nParties == 3)
-			{
+		if (argv[5][0] == '-' && argv[5][1] == 'p') {
+			u64 pIdx = atoi(argv[6]);
+			if (roundOPPRF == 1 && nParties == 3) {
 				//cout << nParties  << " " << roundOPPRF << " " << setSize << " " << pIdx << "\n";
 				//party3(pIdx, setSize, trials);
-			}
-			else if (argv[3][1] == 't') // log:重点关注这个分支
-			{
+			} else if (strcmp(argv[2], "3") == 0) {
 				cout << " log log: =======================exec tparty=======================\n";
 				cout << "pIdx:" << pIdx << " nParties:" << nParties << " tParties:" << tParties << " setSize:" << setSize << " trials:" << trials << " filename:" << inputFilename << " hostIpArr.size():" << hostIpArr.size() << "\n";
 				//tparty(pIdx, nParties, tParties, setSize, trials, hostIpArr, inputFilename, outputFilename);
                 party3(pIdx, setSize, trials, hostIpArr, inputFilename, outputFilename);
 			}
-			else if (argv[3][1] == 'a')
-			{
-				aug_party(pIdx, nParties, setSize, opt_basedOPPRF, trials);
-			}
-		}
-		else
-		{
+		} else {
 			usage(argv[0]);
 			return 0;
 		}

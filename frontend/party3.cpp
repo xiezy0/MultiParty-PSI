@@ -61,7 +61,6 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
         ep[i].start(ios, remoteIp, port, false, name); //channel bwt i and pIdx, where i is sender
     }
     std::string localIp = get_local_ip_address();
-
     for (u64 i = 0; i < nParties; ++i)
     {
         if (i > myIdx)
@@ -108,7 +107,7 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
 
             std::hash<std::string> str_hash;
             time_t salt = std::time(NULL);
-            std::string strHash = std::to_string(str_hash(itemStrVector[i])); //c++ 原生hash
+            std::string strHash = std::to_string(str_hash(itemStrVector[i]));
 
             int len = strHash.length();
             int b[4] = {};
@@ -335,20 +334,19 @@ void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIp
 
         std::vector<block> mIntersection;
         std::vector<u64> mIntersectionPos;
-        //if (myIdx == 0) {
-            std::cout << "==========Begin leader exec online phasing - compute intersection==========" << "\n";
+        std::cout << "==========Begin leader exec online phasing - compute intersection==========" << "\n";
 
-            for (u64 i = 0; i < setSize; ++i)
+        for (u64 i = 0; i < setSize; ++i)
+        {
+            if (!memcmp((u8*)&sendPayLoads[i], &recvPayLoads[i], bins.mMaskSize))
             {
-                if (!memcmp((u8*)&sendPayLoads[i], &recvPayLoads[i], bins.mMaskSize))
-                {
-                    mIntersection.push_back(set[i]);
-                    mIntersectionPos.push_back(i);
-                    std::cout << set[i] << std::endl;
-                }
+                mIntersection.push_back(set[i]);
+                mIntersectionPos.push_back(i);
+                std::cout << set[i] << std::endl;
             }
-            Log::out << "mIntersection.size(): " << mIntersection.size() << Log::endl;
-        //}
+        }
+        Log::out << "mIntersection.size(): " << mIntersection.size() << Log::endl;
+
         auto getIntersection = timer.setTimePoint("getIntersection");
 
         num_intersection = mIntersection.size();
