@@ -2711,20 +2711,31 @@ void read_csv_column(std::vector<u64>& elements, std::vector<std::string>& eleme
     }
 }
 
-void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector<u64> mIntersection, std::string filename){
-    if (!file_exists("output/" + filename)){
-        std::ofstream out_file("output/" + filename);
-        // std::ofstream out_file(std::experimental::filesystem::path("output") / filename);
-        // this is title row
-        out_file << itemVector[0] << std::endl;
+void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector<u64> mIntersection, std::string pathname){
+    size_t botDirPos = pathname.find_last_of('/');
+    std::string dir = pathname.substr(0, botDirPos);
+    std::string file = pathname.substr(botDirPos + 1);
+
+    struct stat st;
+    if (stat(dir.c_str(), &st) == -1)
+    {
+        mkdir(dir.c_str(), 0700);
+        std::cout << "Created directory " << dir << std::endl;
+    }
+    // std::ofstream out_file(std::experimental::filesystem::path("output") / filename);
+    // this is title row
+    std::ofstream ofs(pathname, std::ios::out);
+    if (ofs.is_open()) {
+        ofs << itemVector[0] << std::endl;
         // 将向量中的每个元素输出到文件中，每个元素占一列
         for (const auto& elem : mIntersection) {
-            out_file << itemVector[elem+1] << std::endl;
+            ofs << itemVector[elem+1] << std::endl;
         }
-
-        // 关闭文件
-        out_file.close();
+    } else {
+        std::cout << "Error opening file" << std::endl;
     }
+    // 关闭文件
+    ofs.close();
 }
 
 bool file_exists(const std::string& file_name) {

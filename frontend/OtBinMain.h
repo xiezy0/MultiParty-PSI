@@ -22,7 +22,7 @@ void OPPRFn_Aug_EmptrySet_Test_Impl();
 void OPPRFnt_EmptrySet_Test_Impl();
 void BinSize(u64 setSize, std::vector<block> set, u64 psiSecParam);
 void read_elements(u64** elements, u64* nelements, std::string filename);
-void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector<u64> elements, std::string filename);
+void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector<u64> elements, std::string pathname);
 std::vector<std::string> vec_to_string(const std::vector<u64>& vec);
 void read_txt_file(std::vector<u64>& elements, const std::string& filename);
 void read_csv_column(std::vector<u64>& elements, std::vector<std::string>& elementsLine, const std::string& filename);
