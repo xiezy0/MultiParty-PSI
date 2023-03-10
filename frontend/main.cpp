@@ -62,7 +62,7 @@ int main(int argc, char** argv)
         }
 		break;
 
-	case 7: //2PSI 
+	case 7: //2PSI
 		if (argv[1][0] == '-' && argv[1][1] == 'n') {
             nParties = atoi(argv[2]);
         } else {

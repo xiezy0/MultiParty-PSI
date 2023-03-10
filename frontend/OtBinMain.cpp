@@ -1,4 +1,5 @@
-#include "Network/BtEndpoint.h" 
+
+#include "Network/BtEndpoint.h"
 
 #include "OPPRF/OPPRFReceiver.h"
 #include "OPPRF/OPPRFSender.h"
@@ -9,7 +10,8 @@ using namespace osuCrypto;
 #include "Common/Defines.h"
 #include "NChooseOne/KkrtNcoOtReceiver.h"
 #include "NChooseOne/KkrtNcoOtSender.h"
-
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#include <boost/filesystem.hpp>
 #include "NChooseOne/Oos/OosNcoOtReceiver.h"
 #include "NChooseOne/Oos/OosNcoOtSender.h"
 #include "Common/Log.h"
@@ -2712,11 +2714,30 @@ void read_csv_column(std::vector<u64>& elements, std::vector<std::string>& eleme
 }
 
 void write_elements(std::vector<std::basic_string<char>> itemVector, std::vector<u64> mIntersection, std::string pathname){
+    std::string dir, file;
     size_t botDirPos = pathname.find_last_of('/');
-    std::string dir = pathname.substr(0, botDirPos);
-    std::string file = pathname.substr(botDirPos + 1);
+    if (botDirPos != std::string::npos) {
+        dir = pathname.substr(0, botDirPos);
+        file = pathname.substr(botDirPos + 1, pathname.length ());
+    } else{
+        file = pathname;
+    }
+//    boost::filesystem::path p(pathname);
+//    // does p actually exist?
+//    if (exists (p)) {
+//        if (is_regular_file (p))        // is p a regular file?
+//            std::cout << p << " size is " << file_size (p) << '\n';
+//        else if (is_directory (p))      // is p a directory?
+//            std::cout << p << " is a directory containing:\n";
+//        else
+//            std::cout << p << " exists, but is neither a regular file nor a directory\n";
+//    } else{
+//        std::cout << p << " does not exist\n";
+//    }
+//    std::cout << "path: " << p.parent_path() << '\n';
+//    std::cout << "file: " << p.filename() << '\n';
 
-    struct stat st;
+    struct stat st{};
     if (stat(dir.c_str(), &st) == -1)
     {
         mkdir(dir.c_str(), 0700);
