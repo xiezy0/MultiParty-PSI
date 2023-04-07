@@ -42,10 +42,10 @@ void Channel_test()
 	std::string name("psi");
 
 	BtIOService ios(0);
-	BtEndpoint ep0(ios, "localhost", 1212, false, name);
+	BtEndpoint ep0(ios, "localhost", 1213, false, name);
 	BtEndpoint ep1(ios, "localhost", 1212, true, name);
-	u8 dummy = 1;
-	u8 revDummy;
+	u64 dummy = 155;
+	u64 revDummy;
 	std::vector<Channel*> recvChl{ &ep0.addChannel(name, name) };
 	std::vector<Channel*> sendChl{ &ep1.addChannel(name, name) };
 
@@ -69,7 +69,6 @@ void Channel_party_test(u64 myIdx)
 	u64 setSize = 1 << 5, psiSecParam = 40, bitSize = 128, numThreads = 1;
 	PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
-
 	std::vector<u8> dummy(nParties);
 	std::vector<u8> revDummy(nParties);
 
@@ -78,6 +77,7 @@ void Channel_party_test(u64 myIdx)
 	BtIOService ios(0);
 
 	int btCount = nParties;
+    std::cout << "nnnn partys number: " << nParties << std::endl;
 	std::vector<BtEndpoint> ep(nParties);
 
 	for (u64 i = 0; i < nParties; ++i)
@@ -85,12 +85,15 @@ void Channel_party_test(u64 myIdx)
 		dummy[i] = myIdx * 10 + i;
 		if (i < myIdx)
 		{
-			u32 port = i * 10 + myIdx;//get the same port; i=1 & pIdx=2 =>port=102
+
+			u32 port = 1200 + i * 10 + myIdx;//get the same port; i=1 & pIdx=2 =>port=102
+            std::cout << myIdx << ":::::" << port << std::endl;
 			ep[i].start(ios, "localhost", port, false, name); //channel bwt i and pIdx, where i is sender
 		}
 		else if (i > myIdx)
 		{
-			u32 port = myIdx * 10 + i;//get the same port; i=2 & pIdx=1 =>port=102
+			u32 port = 1200 + myIdx * 10 + i;//get the same port; i=2 & pIdx=1 =>port=102
+            std::cout << myIdx << ":::::" << port << std::endl;
 			ep[i].start(ios, "localhost", port, true, name); //channel bwt i and pIdx, where i is receiver
 		}
 	}
@@ -118,19 +121,15 @@ void Channel_party_test(u64 myIdx)
 	{
 		pThrds[pIdx] = std::thread([&, pIdx]() {
 			if (pIdx < myIdx) {
-
-
 				chls[pIdx][0]->asyncSend(&dummy[pIdx], 1);
 				std::lock_guard<std::mutex> lock(printMtx1);
 				std::cout << "s: " << myIdx << " -> " << pIdx << " : " << static_cast<int16_t>(dummy[pIdx]) << std::endl;
 
 			}
 			else if (pIdx > myIdx) {
-
 				chls[pIdx][0]->recv(&revDummy[pIdx], 1);
 				std::lock_guard<std::mutex> lock(printMtx2);
 				std::cout << "r: " << myIdx << " <- " << pIdx << " : " << static_cast<int16_t>(revDummy[pIdx]) << std::endl;
-
 			}
 		});
 	}
@@ -166,7 +165,7 @@ void Channel_party_test(u64 myIdx)
 	ios.stop();
 }
 
-void party(u64 myIdx, u64 nParties, u64 setSize, std::vector<block>& mSet)
+void partyold(u64 myIdx, u64 nParties, u64 setSize, std::vector<block>& mSet)
 {
 	//nParties = 4;
 	std::fstream runtime;
@@ -1539,7 +1538,7 @@ void OPPRFnt_EmptrySet_Test_Main()
 void OPPRFn_EmptrySet_Test_Main()
 {
 	u64 setSize = 1 << 5, psiSecParam = 40, bitSize = 128;
-	u64 nParties = 4;
+	u64 nParties = 3;
 	PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 	mSet.resize(setSize);
 	for (u64 i = 0; i < setSize; ++i)

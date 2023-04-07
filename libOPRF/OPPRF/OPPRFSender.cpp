@@ -1294,7 +1294,7 @@ namespace osuCrypto
 		}
 		//std::cout << "s[" << IdxP << "]-coeffs[1][3]" << coeffs[1][3] << "\n";
 
-		std::cout << "s[" << IdxP << "]-dataSent(bytes)" << maskView.size()[0] * maskView.size()[1] << "----------\n";
+		//std::cout << "s[" << IdxP << "]-dataSent(bytes)" << maskView.size()[0] * maskView.size()[1] << "----------\n";
 
 		auto& chl = *chls[0];
 		chl.asyncSend(std::move(sendMaskBuff));
@@ -1467,7 +1467,7 @@ namespace osuCrypto
 		//std::cout << "\ns[" << IdxP << "]-mMaskSize " << bins.mMaskSize << "\n";
 
 
-		std::cout << "s[" << IdxP << "]-dataSent(bytes)" << maskBFView.size()[0] * maskBFView.size()[1] << "----------\n";
+		//std::cout << "s[" << IdxP << "]-dataSent(bytes)" << maskBFView.size()[0] * maskBFView.size()[1] << "----------\n";
 
 		//std::cout << "\ns[" << IdxP << "]-GarbleBF[1][3]" << GarbleBF[1][3] << "\n";
 

@@ -153,6 +153,8 @@ int main(int argc, char** argv)
 				cout << "pIdx:" << pIdx << " nParties:" << nParties << " tParties:" << tParties << " setSize:" << setSize << " trials:" << trials << " filename:" << inputFilename << " hostIpArr.size():" << hostIpArr.size() << "\n";
 				//tparty(pIdx, nParties, tParties, setSize, trials, hostIpArr, inputFilename, outputFilename);
                 party3(pIdx, setSize, trials, hostIpArr, inputFilename, outputFilename);
+                //OPPRFn_EmptrySet_Test_Main();
+                // Channel_party_test(pIdx);
 			}
 		} else {
 			usage(argv[0]);

@@ -782,19 +782,19 @@ void tparty(u64 myIdx, u64 nParties, u64 tParties, u64 setSize, u64 nTrials, std
                 // 对各方数据进行异或
                 // xor all received share
                 block sum = ZeroBlock; // 0
-                // std::cout << "==========sum print start==========" << "\n";
+                std::cout << "==========sum print start==========" << "\n";
                 // comment 20220113
                 // 将各方的sh进行xor
                 for (u64 idxP = 0; idxP < nParties - 1; ++idxP)
                 {
                     sum = sum ^ recvPayLoads[idxP][i];
                 }
-                // std::cout << sum << "\n";
-                // std::cout << "==========sum print end==========" << "\n";
+                //std::cout << sum << "\n";
+                //std::cout << "==========sum print end==========" << "\n";
 
-                // std::cout << "==========ZeroBlock print start==========" << "\n";
-                // std::cout << ZeroBlock << "\n";
-                // std::cout << "==========ZeroBlock print end==========" << "\n";
+                //std::cout << "==========ZeroBlock print start==========" << "\n";
+               // std::cout << ZeroBlock << "\n";
+                //std::cout << "==========ZeroBlock print end==========" << "\n";
 
                 // std::cout << "memcmp((u8*)&ZeroBlock, &sum, bins.mMaskSize)" << memcmp((u8*)&ZeroBlock, &sum, bins.mMaskSize) << "\n";
 

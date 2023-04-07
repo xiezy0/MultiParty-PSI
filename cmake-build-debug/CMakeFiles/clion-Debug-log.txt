@@ -7,6 +7,18 @@ CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required):
   CMake that the project does not need compatibility with older versions.
 
 
+-- The C compiler identification is GNU 11.3.0
+-- The CXX compiler identification is GNU 11.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
 CMake Warning at CMakeLists.txt:28 (message):
   
 
@@ -14,6 +26,12 @@ CMake Warning at CMakeLists.txt:28 (message):
   CMAKE_BUILD_TYPE=Release
 
 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found Boost: /home/xiumaker/Documents/MultiParty-PSI/thirdparty/linux/boost (found version "1.64.0") found components: system thread missing components: chrono date_time atomic
 Found Boost library at /home/xiumaker/Documents/MultiParty-PSI/thirdparty/linux/boost/stage/lib/libboost_system.a;/home/xiumaker/Documents/MultiParty-PSI/thirdparty/linux/boost/stage/lib/libboost_thread.a
 Found Boost library at /home/xiumaker/Documents/MultiParty-PSI/thirdparty/linux/boost/stage/lib
 Found Boost include at /home/xiumaker/Documents/MultiParty-PSI/thirdparty/linux/boost

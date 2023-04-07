@@ -126,7 +126,7 @@ namespace osuCrypto
 //
 //                }, bytesTransfered, boost::asio::buffer_size(op.mBuffs[0]), ec);
 //                output.join();
-                std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << bytesTransfered <<  (boost::asio::buffer_size(op.mBuffs[0])) << std::endl;
+                //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << bytesTransfered <<  (boost::asio::buffer_size(op.mBuffs[0])) << std::endl;
 //                std::cout << (boost::asio::buffer_size(op.mBuffs[0]) || ec) << std::endl;
 //                std::cout << boost::asio::buffer_size(op.mBuffs[0]) << ec << std::endl;
                 //cout_mutex.unlock();

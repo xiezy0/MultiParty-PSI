@@ -8,6 +8,7 @@
 //void BarkOPRFRecv();
 //void BarkOPRSend();
 void Channel_test();
+void Channel_party_test(u64 myIdx);
 void OPPRF3_EmptrySet_Test_Main();
 void OPPRFn_EmptrySet_Test_Main();
 void OPPRF2_EmptrySet_Test_Main();
@@ -31,4 +32,6 @@ void GetPrimaryIp(char (&buffer)[80]);
 std::string get_local_ip_address();
 bool is_in_dual_area(u64 startIdx, u64 endIdx, u64 numIdx, u64 checkIdx);
 void party3(u64 myIdx, u64 setSize, u64 nTrials, std::vector<std::string> hostIpArr, std::string inputFilename, std::string outputFilename);
+std::vector<u8> to_bytes(const std::vector<uint64_t>& input);
+std::vector<u64> from_bytes(const std::vector<u8>& input);
 //void OPPRFn_EmptrySet_Test();

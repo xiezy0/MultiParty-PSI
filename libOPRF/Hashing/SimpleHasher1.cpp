@@ -278,16 +278,16 @@ namespace osuCrypto
 	
 	void SimpleHasher1::insertBatch(ArrayView<u64> inputIdxs, MatrixView<u64> hashs)
 	{
-		std::cout<< "Start Exec SimpleHasher1::insertBatch" << std::endl;
+		//std::cout<< "Start Exec SimpleHasher1::insertBatch" << std::endl;
 		for (u64 j = 0; j < inputIdxs.size(); ++j)
 		{
-			std::cout<< "Exec SimpleHasher1::insertBatch mNumHashes[0]："<< mNumHashes[0] << std::endl;
+			//std::cout<< "Exec SimpleHasher1::insertBatch mNumHashes[0]："<< mNumHashes[0] << std::endl;
 			for (u64 k = 0; k < mNumHashes[0]; ++k)
 			{
 				u64 addr = *(u64*)&hashs[j][k] % mBinCount[0];
-				std::cout<< "addr:" << addr <<std::endl;
+				//std::cout<< "addr:" << addr <<std::endl;
 				if(addr==0)
-					std::cout << "----"<<inputIdxs[j] <<"-" << addr << std::endl;
+					//std::cout << "----"<<inputIdxs[j] <<"-" << addr << std::endl;
 
 				std::lock_guard<std::mutex> lock(mMtx[addr]);
 				if (std::find(mBins[addr].mIdx.begin(), mBins[addr].mIdx.end(), inputIdxs[j]) 
@@ -300,16 +300,16 @@ namespace osuCrypto
 				}
 			}
 
-			std::cout<< "Exec SimpleHasher1::insertBatch mNumHashes[1]："<< mNumHashes[1] << std::endl;
+			//std::cout<< "Exec SimpleHasher1::insertBatch mNumHashes[1]："<< mNumHashes[1] << std::endl;
 			for (u64 k = 0; k < mNumHashes[1]; ++k)
 			{
-				std::cout<< "&hashs[j][k]:" << *(u64*)&hashs[j][k] <<std::endl;
-				std::cout<< "mBinCount[1]:" << mBinCount[1] <<std::endl; //0
-				std::cout<< "mBinCount[0]:" << mBinCount[0] <<std::endl; //1
+				//std::cout<< "&hashs[j][k]:" << *(u64*)&hashs[j][k] <<std::endl;
+				//std::cout<< "mBinCount[1]:" << mBinCount[1] <<std::endl; //0
+				//std::cout<< "mBinCount[0]:" << mBinCount[0] <<std::endl; //1
 				u64 addrStash = 0;
 				try {
 					addrStash = *(u64*)&hashs[j][k] % mBinCount[1] + mBinCount[0];
-					std::cout<< "addrStash:" << addrStash <<std::endl;
+					//std::cout<< "addrStash:" << addrStash <<std::endl;
 				} catch(...) {
 					std::cout << "try catch exception" << std::endl;
 				}
@@ -325,6 +325,6 @@ namespace osuCrypto
 			}
 
 		}
-		std::cout<< "End Exec SimpleHasher1::insertBatch" << std::endl;
+		//std::cout<< "End Exec SimpleHasher1::insertBatch" << std::endl;
 	}
 }
